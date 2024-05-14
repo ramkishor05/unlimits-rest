@@ -36,6 +36,8 @@ public interface CrudService<DT, EN, ID> {
 	 * @return
 	 */
 	DT update(DT data);
+	
+	DT update(ID id, DT dto);
 	/***
 	 * 
 	 * @param uuid
@@ -94,5 +96,6 @@ public interface CrudService<DT, EN, ID> {
 	 * @return
 	 */
 	List<DT> findAllById(List<ID> ids);
+	
 
 }

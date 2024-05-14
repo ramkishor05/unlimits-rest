@@ -67,6 +67,21 @@ public abstract class CrudController<DT, EN, ID> {
 		}
 	}
 	
+	@PutMapping("/update/{id}")
+	public Response update(@PathVariable ID id,@RequestBody DT dto){
+		Response response=new Response();
+		try {
+			response.setData(getService().update(id, dto));
+			response.setSuccess(SUCCESS);
+			response.setMessage(SUCCESSFULLY_PROCCEED);
+			return response;
+		}catch (Exception e) {
+			response.setSuccess(FAILED);
+			response.setMessage(e.getMessage());
+			return response;
+		}
+	}
+	
 	@DeleteMapping("/delete/{id}")
 	public Response delete(@PathVariable ID id){
 		Response response=new Response();
@@ -112,7 +127,7 @@ public abstract class CrudController<DT, EN, ID> {
 		}
 	}
 	
-	@GetMapping("/findAll")
+	@GetMapping
 	public Response findAll(){
 		Response response=new Response();
 		try {

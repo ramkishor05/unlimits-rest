@@ -30,6 +30,12 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 		EN save = getRepository().save(mappedToDT);
 		return getMapper().mapToDTO(save);
 	}
+	
+	@Override
+	public DT update(ID id, DT dto) {
+		DT findById = findById(id);
+		return null;
+	}
 
 	@Override
 	public Boolean delete(ID uuid) {
