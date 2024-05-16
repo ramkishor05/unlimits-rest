@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.unlimits.rest.crud.service;
 
 import java.util.List;
@@ -11,45 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.unlimits.rest.crud.beans.PageDetail;
 
-/**
- *  @author ram kishor
- */
-public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, ID> {
-	
-
-	@Override
-	public DT add(DT data) {
-		EN mappedToDT = getMapper().mapToDAO(data);
-		EN save = getRepository().save(mappedToDT);
-		return getMapper().mapToDTO(save);
-	}
-
-	@Override
-	public DT update(DT data) {
-		EN mappedToDT = getMapper().mapToDAO(data);
-		EN save = getRepository().save(mappedToDT);
-		return getMapper().mapToDTO(save);
-	}
-	
-	@Override
-	public DT update(ID id, DT dto) {
-		DT findById = findById(id);
-		if(findById==null) {
-			return null;
-		}
-		return null;
-	}
-
-	@Override
-	public Boolean delete(ID uuid) {
-		getRepository().deleteById(uuid);
-		return true;
-	}
-	
-	@Override
-	public DT find(ID uuid) {
-		return getMapper().mapToDTO(getRepository().getReferenceById(uuid));
-	}
+public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, EN, ID> {
 
 	@Override
 	public DT findById(ID uuid) {
