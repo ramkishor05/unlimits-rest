@@ -36,7 +36,8 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 		Page<EN> page = getRepository().findAll(pageable);
 		List<DT> reslist = getMapper().mapToDTO(page.toList());
 		PageDetail responseDto=new PageDetail();
-		responseDto.setCount(reslist.size());
+		responseDto.setPageCount(page.getNumber());
+		responseDto.setTotalCount(page.getTotalElements());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}
@@ -47,7 +48,8 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 		Page<EN> page = getRepository().findAll(pageable);
 		List<DT> reslist = getMapper().mapToDTO(page.toList());
 		PageDetail responseDto=new PageDetail();
-		responseDto.setCount(reslist.size());
+		responseDto.setPageCount(page.getNumber());
+		responseDto.setTotalCount(page.getTotalElements());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}

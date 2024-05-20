@@ -112,7 +112,8 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 		Page<EN> page = getRepository().findAll(pageable);
 		List<DT> reslist = postCall(page.toList());
 		PageDetail responseDto=new PageDetail();
-		responseDto.setCount(reslist.size());
+		responseDto.setPageCount(page.getNumber());
+		responseDto.setTotalCount(page.getTotalElements());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}
@@ -123,7 +124,8 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 		Page<EN> page = getRepository().findAll(pageable);
 		List<DT> reslist = postCall(page.toList());
 		PageDetail responseDto=new PageDetail();
-		responseDto.setCount(reslist.size());
+		responseDto.setPageCount(page.getNumber());
+		responseDto.setTotalCount(page.getTotalElements());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}

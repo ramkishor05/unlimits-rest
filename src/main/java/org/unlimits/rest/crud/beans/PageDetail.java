@@ -4,16 +4,26 @@ import java.util.List;
 
 public class PageDetail {
 	
-	private long count;
+	private long totalCount;
+	
+	private long pageCount;
 	
 	private List<?> elements;
 
-	public long getCount() {
-		return count;
+	public long getTotalCount() {
+		return totalCount;
 	}
 
-	public void setCount(long count) {
-		this.count = count;
+	public void setTotalCount(long totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	public long getPageCount() {
+		return pageCount;
+	}
+
+	public void setPageCount(long pageCount) {
+		this.pageCount = pageCount;
 	}
 
 	public List<?> getElements() {
