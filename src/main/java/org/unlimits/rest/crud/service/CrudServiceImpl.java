@@ -114,8 +114,13 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 		PageDetail responseDto=new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
+		responseDto.setTotalPages(page.getTotalPages());
 		responseDto.setElements(reslist);
 		return responseDto;
+	}
+	
+	static Long ceilValue(Long totalElements, Long pageCount) {
+		return Double.valueOf(Math.ceil(Double.valueOf(totalElements)/Double.valueOf(pageCount))).longValue();
 	}
 	
 	@Override
@@ -126,6 +131,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 		PageDetail responseDto=new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
+		responseDto.setTotalPages(page.getTotalPages());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}
@@ -143,4 +149,5 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 		Page<EN> page = getRepository().findAll(pageable);
 		return postCall(page.toList());
 	}
+	
 }

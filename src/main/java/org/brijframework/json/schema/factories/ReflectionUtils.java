@@ -19,6 +19,9 @@ public class ReflectionUtils {
 	public static void setField(Object instance, Object fieldVal, String fieldName) {
 		try {
 			Field fieldInfo = findField(instance.getClass(), fieldName);
+			if(fieldInfo==null) {
+				return ;
+			}
 			fieldInfo.setAccessible(true);
 			fieldInfo.set(instance, fieldVal);
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
@@ -28,6 +31,9 @@ public class ReflectionUtils {
 	}
 
 	public static Field findField(Class<?> cls, String fieldName) {
+		if(cls==null) {
+			return null;
+		}
 		try {
 			return cls.getDeclaredField(fieldName);
 		} catch (NoSuchFieldException e) {
@@ -38,6 +44,9 @@ public class ReflectionUtils {
 	public static Object getField(Object instance, String fieldName) {
 		try {
 			Field fieldInfo = findField(instance.getClass(), fieldName);
+			if(fieldInfo==null) {
+				return null;
+			}
 			return getField(instance, fieldInfo);
 		} catch (SecurityException | IllegalArgumentException e) {
 			e.printStackTrace();

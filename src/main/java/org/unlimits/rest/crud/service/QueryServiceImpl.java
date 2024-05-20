@@ -38,6 +38,7 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 		PageDetail responseDto=new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
+		responseDto.setTotalPages(page.getTotalPages());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}
@@ -50,6 +51,7 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 		PageDetail responseDto=new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
+		responseDto.setTotalPages(page.getTotalPages());
 		responseDto.setElements(reslist);
 		return responseDto;
 	}

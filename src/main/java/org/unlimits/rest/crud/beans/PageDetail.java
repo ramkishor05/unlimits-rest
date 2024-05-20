@@ -8,6 +8,8 @@ public class PageDetail {
 	
 	private long pageCount;
 	
+	private long totalPages;
+	
 	private List<?> elements;
 
 	public long getTotalCount() {
@@ -34,5 +36,13 @@ public class PageDetail {
 		this.elements = elements;
 	}
 
+	public long getTotalPages() {
+		return totalPages;
+	}
+
+	public void setTotalPages(long totalPages) {
+		this.totalPages = totalPages;
+	}
+	
 	
 }
