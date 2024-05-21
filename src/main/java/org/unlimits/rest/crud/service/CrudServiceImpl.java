@@ -5,6 +5,7 @@ package org.unlimits.rest.crud.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,19 +20,19 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 	
 
 	@Override
-	public DT add(DT data) {
-		preAdd(data);
+	public DT add(DT data, Map<String, List<String>> headers) {
 		EN mappedToDT = getMapper().mapToDAO(data);
+		preAdd(data, mappedToDT,  headers);
 		EN save = getRepository().save(mappedToDT);
 		return getMapper().mapToDTO(save);
 	}
 
-	protected void preAdd(DT data) {
+	protected void preAdd(DT data, EN entity, Map<String, List<String>> headers) {
 		
 	}
 
 	@Override
-	public DT update(DT data) {
+	public DT update(DT data, Map<String, List<String>> headers) {
 		preUpdate(data);
 		EN mappedToDT = getMapper().mapToDAO(data);
 		EN save = getRepository().save(mappedToDT);
@@ -43,7 +44,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT,EN, 
 	}
 
 	@Override
-	public DT update(ID id, DT dto) {
+	public DT update(ID id, DT dto, Map<String, List<String>> headers) {
 		DT findById = findById(id);
 		if(findById==null) {
 			return null;

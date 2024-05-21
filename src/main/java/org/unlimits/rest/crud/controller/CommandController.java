@@ -3,12 +3,14 @@
  */
 package org.unlimits.rest.crud.controller;
 
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.unlimits.rest.crud.beans.Response;
 import org.unlimits.rest.crud.service.CommandService;
 
@@ -34,10 +36,10 @@ public abstract class CommandController<DT, EN, ID> {
 	public abstract CommandService<DT, EN, ID> getService();
 
 	@PostMapping
-	public Response addr(@RequestBody DT dto){
+	public Response addr(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().add(dto));
+			response.setData(getService().add(dto,headers));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -50,10 +52,10 @@ public abstract class CommandController<DT, EN, ID> {
 	}
 	
 	@PutMapping
-	public Response update(@RequestBody DT dto){
+	public Response update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().update(dto));
+			response.setData(getService().update(dto,headers));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -65,10 +67,10 @@ public abstract class CommandController<DT, EN, ID> {
 	}
 	
 	@PutMapping("/{id}")
-	public Response update(@PathVariable ID id,@RequestBody DT dto){
+	public Response update(@PathVariable ID id,@RequestBody DT dto, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().update(id, dto));
+			response.setData(getService().update(id, dto,headers));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
