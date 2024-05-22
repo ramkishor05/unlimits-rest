@@ -39,15 +39,15 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 
 	@Override
 	public DT update(DT data, Map<String, List<String>> headers) {
-		preUpdate(data);
 		EN mappedToDT = getMapper().mapToDAO(data);
+		preUpdate(data, mappedToDT, headers );
 		EN save = getRepository().save(mappedToDT);
 		DT mapToDTO = getMapper().mapToDTO(save);
 		postUpdate(mapToDTO);
 		return mapToDTO;
 	}
 
-	protected void preUpdate(DT data) {
+	protected void preUpdate(DT data, EN entity, Map<String, List<String>> headers) {
 
 	}
 	
@@ -56,9 +56,9 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	}
 
 	@Override
-	public DT update(ID id, DT dto, Map<String, List<String>> headers) {
-		DT findById = findById(id);
-		if(findById==null) {
+	public DT update(ID id, DT data, Map<String, List<String>> headers) {
+		DT findObject = findById(id);
+		if(findObject==null) {
 			return null;
 		}
 		EN dtoObject = getMapper().mapToDAO(data);
