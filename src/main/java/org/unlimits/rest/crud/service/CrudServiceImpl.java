@@ -112,21 +112,35 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	}
 
 	@Override
-	public List<DT> findAll() {
-		List<EN> findObjects = getRepository().findAll();
+	public List<DT> findAll(Map<String, List<String>> headers) {
+		List<EN> findObjects = repositoryFindAll(headers);
 		return postCall(findObjects);
 	}
 
-	@Override
-	public List<DT> findAll(Sort sort) {
-		List<EN> findObjects = getRepository().findAll(sort);
-		return postCall(findObjects);
+	/**
+	 * @return
+	 */
+	protected List<EN> repositoryFindAll(Map<String, List<String>> headers) {
+		return getRepository().findAll();
 	}
 
 	@Override
-	public PageDetail fetchPageObject(int pageNumber, int count) {
+	public List<DT> findAll(Map<String, List<String>> headers, Sort sort) {
+		List<EN> findObjects = repositoryFindAll(headers, sort);
+		return postCall(findObjects);
+	}
+	
+	/**
+	 * @return
+	 */
+	protected List<EN> repositoryFindAll(Map<String, List<String>> headers, Sort sort) {
+		return getRepository().findAll(sort);
+	}
+
+	@Override
+	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count) {
 		Pageable pageable = PageRequest.of(pageNumber, count);
-		Page<EN> page = getRepository().findAll(pageable);
+		Page<EN> page = repositoryFindAll(headers, pageable);
 		List<DT> reslist = postCall(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
@@ -135,11 +149,19 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 		responseDto.setElements(reslist);
 		return responseDto;
 	}
+	
+	/**
+	 * @return
+	 */
+	protected Page<EN> repositoryFindAll(Map<String, List<String>> headers,Pageable pageable) {
+		return getRepository().findAll(pageable);
+	}
+
 
 	@Override
-	public PageDetail fetchPageObject(int pageNumber, int count, Sort sort) {
+	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
 		Pageable pageable = PageRequest.of(pageNumber, count, sort);
-		Page<EN> page = getRepository().findAll(pageable);
+		Page<EN> page = repositoryFindAll(headers, pageable);
 		List<DT> reslist = postCall(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
@@ -150,16 +172,16 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	}
 
 	@Override
-	public List<DT> fetchPageList(int pageNumber, int count) {
+	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count) {
 		Pageable pageable = PageRequest.of(pageNumber, count);
-		Page<EN> page = getRepository().findAll(pageable);
+		Page<EN> page =repositoryFindAll(headers, pageable);
 		return postCall(page.toList());
 	}
 
 	@Override
-	public List<DT> fetchPageList(int pageNumber, int count, Sort sort) {
+	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
 		Pageable pageable = PageRequest.of(pageNumber, count, sort);
-		Page<EN> page = getRepository().findAll(pageable);
+		Page<EN> page = repositoryFindAll(headers,pageable);
 		return postCall(page.toList());
 	}
 

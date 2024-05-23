@@ -131,10 +131,10 @@ public abstract class CrudController<DT, EN, ID> {
 	}
 	
 	@GetMapping
-	public Response findAll(){
+	public Response findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().findAll());
+			response.setData(getService().findAll(headers));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -146,10 +146,10 @@ public abstract class CrudController<DT, EN, ID> {
 	}
 	
 	@GetMapping("/page/data/{pageNumber}/count/{count}")
-	public Response fetchPageObject(@PathVariable int pageNumber,@PathVariable int count){
+	public Response fetchPageObject(@PathVariable int pageNumber,@PathVariable int count, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().fetchPageObject(pageNumber, count));
+			response.setData(getService().fetchPageObject(headers, pageNumber, count ));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -161,10 +161,10 @@ public abstract class CrudController<DT, EN, ID> {
 	}
 	
 	@GetMapping("/page/list/{pageNumber}/count/{count}")
-	public Response fetchPageList(@PathVariable int pageNumber,@PathVariable int count){
+	public Response fetchPageList(@PathVariable int pageNumber,@PathVariable int count, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().fetchPageList(pageNumber, count));
+			response.setData(getService().fetchPageList(headers,pageNumber, count));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -176,10 +176,10 @@ public abstract class CrudController<DT, EN, ID> {
 	}
 	
 	@GetMapping("/page/data/{pageNumber}/count/{count}/sort/{sort}")
-	public Response fetchPageObject(@PathVariable int pageNumber,@PathVariable int count, @PathVariable String sort){
+	public Response fetchPageObject(@PathVariable int pageNumber,@PathVariable int count, @PathVariable String sort, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().fetchPageObject(pageNumber, count, Sort.by(sort)));
+			response.setData(getService().fetchPageObject(headers,pageNumber, count, Sort.by(sort)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -191,10 +191,10 @@ public abstract class CrudController<DT, EN, ID> {
 	}
 	
 	@GetMapping("/page/list/{pageNumber}/count/{count}/sort/{sort}")
-	public Response fetchPageList(@PathVariable int pageNumber,@PathVariable int count, @PathVariable String sort){
+	public Response fetchPageList(@PathVariable int pageNumber,@PathVariable int count, @PathVariable String sort, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().fetchPageList(pageNumber, count, Sort.by(sort)));
+			response.setData(getService().fetchPageList(headers,pageNumber, count, Sort.by(sort)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
