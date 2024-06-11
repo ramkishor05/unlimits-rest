@@ -87,7 +87,6 @@ public class TokenUtil{
 			return null;
 		}
 		String token = authToken.startsWith(BEARER) ? authToken.substring(7) : authToken;
-		System.out.println("token="+token);
 		final JwsHeader<?> jwsHeader = extractAllHeaders(token);
 		if (jwsHeader == null) {
 			return null;
