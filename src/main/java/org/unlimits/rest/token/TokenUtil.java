@@ -95,7 +95,9 @@ public class TokenUtil{
 		return jwsHeader.get(USER_ID).toString();
 	}
 
-	public static Date extractExpiration(String token) {
+	public static Date extractExpiration(String authToken) {
+		String token = authToken.startsWith(BEARER) ? authToken.substring(7) : authToken;
+		System.out.println("token="+token);
 		return extractClaim(token, Claims::getExpiration);
 	}
 
@@ -113,8 +115,11 @@ public class TokenUtil{
 		return createToken(claims, userName,userId, role);
 	}
 
-	public static String changeExpiration(String token, Date expiration) {
+	public static String changeExpiration(String authToken, Date expiration) {
+		
 		log.debug("TokenServiceImpl :: generateToken() started");
+		String token = authToken.startsWith(BEARER) ? authToken.substring(7) : authToken;
+		System.out.println("token="+token);
 		Jws<Claims> parseClaimsJws = Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
 
 		Claims body = parseClaimsJws.getBody();
