@@ -40,7 +40,6 @@ public abstract class CrudController<DT, EN, ID> {
 
 	@PostMapping
 	public Response addr(@RequestBody DT dto , @RequestHeader(required =false)  MultiValueMap<String,String> headers){
-		System.out.println("headers="+headers);
 		Response response=new Response();
 		try {
 			response.setData(getService().add(dto , headers));
