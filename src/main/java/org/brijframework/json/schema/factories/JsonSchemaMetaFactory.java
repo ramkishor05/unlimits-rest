@@ -30,8 +30,8 @@ public class JsonSchemaMetaFactory implements SingletonFactory{
 			if (instance == null) {
 				instance = new JsonSchemaMetaFactory();
 			}
-			return instance;
 		}
+		return instance;
 	}
 
 	private JsonSchemaMetaFactory() {
@@ -44,7 +44,6 @@ public class JsonSchemaMetaFactory implements SingletonFactory{
 	
 	@Override
 	public void load(Path file, InputStream inputStream) {
-		System.out.println("jsonSchemaFile="+file);
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			JsonSchemaFile jsonSchemaFile = objectMapper.readValue(inputStream, JsonSchemaFile.class);

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.brijframework.util.accessor.PropertyAccessorUtil;
+import org.brijframework.util.reflect.InstanceUtil;
+import org.brijframework.util.support.ReflectionAccess;
+
 public class JsonSchemaDataFactory {
 
 	final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<String, Object>();
@@ -22,8 +26,8 @@ public class JsonSchemaDataFactory {
 			if (instance == null) {
 				instance = new JsonSchemaDataFactory();
 			}
-			return instance;
 		}
+		return instance;
 	}
 
 	private JsonSchemaDataFactory() {
@@ -42,9 +46,9 @@ public class JsonSchemaDataFactory {
 
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getAll(Class<T> type){
-		List<T> typeObjectList =new ArrayList<>();
+		List<T> typeObjectList =new ArrayList<T>();
 		for(Object object :  this.getCache().values()) {
-			if(object.getClass().equals(type)){
+			if(object.getClass().getName().equalsIgnoreCase(type.getName())){
 				typeObjectList.add((T)object);
 			}
 		}
@@ -56,20 +60,20 @@ public class JsonSchemaDataFactory {
 		if(object!=null) {
 			return object;
 		}
-		Object instance = ReflectionUtils.getInstance(segmentMetaData.getType());
+		Object instance = InstanceUtil.getInstance(segmentMetaData.getType());
 		segmentMetaData.getProperties().forEach((key, val)->{
 			if(val instanceof JsonSchemaObject) {
 				JsonSchemaObject schemaObject= (JsonSchemaObject)val;
-				ReflectionUtils.setField(instance, buildObject(schemaObject), key);
+				PropertyAccessorUtil.setProperty (instance, key,ReflectionAccess.PRIVATE, buildObject(schemaObject));
 			} else {
-				ReflectionUtils.setField(instance,  val, key);
+				PropertyAccessorUtil.setProperty (instance, key,ReflectionAccess.PRIVATE, val);
 			}
 		});
 		segmentMetaData.getRelationship().forEach((key, val)->{
 			if(val instanceof JsonSchemaObject) {
-				ReflectionUtils.setField(instance,  buildObject((JsonSchemaObject)val), key);
+				PropertyAccessorUtil.setProperty (instance, key, ReflectionAccess.PRIVATE,  buildObject((JsonSchemaObject)val));
 			} else {
-				ReflectionUtils.setField(instance,  val, key);
+				PropertyAccessorUtil.setProperty(instance, key, ReflectionAccess.PRIVATE, val);
 			}
 		});
 		getCache().put(segmentMetaData.getId(), instance);

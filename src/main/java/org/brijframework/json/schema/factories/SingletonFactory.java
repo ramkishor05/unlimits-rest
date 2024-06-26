@@ -77,7 +77,6 @@ public interface SingletonFactory {
 		LOGGER.info(this.getClass().getName()+" loading  start");
 		try {
 			URL resource = getConfigDirURLForChild(root);
-			System.out.println("resource="+resource);
 			if(resource==null) {
 				return;
 			}
@@ -91,7 +90,6 @@ public interface SingletonFactory {
 			    callForLoadFromJarSystem(path);
 			} else {
 				Path path = Paths.get(uri);
-				
 				if(path==null) {
 					return;
 				}
@@ -107,11 +105,18 @@ public interface SingletonFactory {
 	public default void callForLoadFromJarSystem(Path path) throws IOException {
 		try (Stream<Path>  stream= Files.list(path)){
 			stream.forEach(file -> {
+				System.out.println("jarpath="+file);
 		    	if(file.toString().contains(".")) {
 		    		try (InputStream inputStream = file.toUri().toURL().openStream()){
 						load(file, inputStream);
 					} catch (IOException e) {
 						LOGGER.error(EXCEPTION, e);
+					}
+				} else {
+					try {
+						callForLoadFromJarSystem(file);
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
 			});
@@ -120,12 +125,20 @@ public interface SingletonFactory {
 
 	public default void callForLoadFromFileSystem(Path path) throws IOException {
 		try (Stream<Path>  stream= Files.list(path)){
-				stream.filter(file ->file.toFile().isFile()).forEach(file -> {
-				try (InputStream inputStream = file.toUri().toURL().openStream()) {
-					load(file, inputStream);
-				} catch (IOException e) {
-					LOGGER.error(EXCEPTION, e);
-				}
+				stream.forEach(file -> {
+					if(file.toFile().isDirectory()) {
+						try {
+							callForLoadFromFileSystem(file);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					} else {
+						try (InputStream inputStream = file.toUri().toURL().openStream()) {
+							load(file, inputStream);
+						} catch (IOException e) {
+							LOGGER.error(EXCEPTION, e);
+						}
+					}
 				
 			});
 		}
@@ -149,7 +162,6 @@ public interface SingletonFactory {
 			    callForLoadFromJarSystem(templateId, path);
 			} else {
 				Path path = Paths.get(uri);
-				
 				if(path==null) {
 					return;
 				}
@@ -174,12 +186,21 @@ public interface SingletonFactory {
 	}
 
 	public default void callForLoadFromFileSystem(String templateId, Path path) throws IOException {
+		System.out.println("Files.list(path)="+Files.list(path));
 		try (Stream<Path>  stream= Files.list(path)){
-			stream.filter(file ->file.toFile().isFile()).forEach(file -> {
-				try (InputStream inputStream = file.toUri().toURL().openStream()){
-					load(file, inputStream, templateId);
-				} catch (IOException e) {
-					LOGGER.error(EXCEPTION, e);
+			stream.forEach(file -> {
+				if(file.toFile().isDirectory()) {
+					try {
+						callForLoadFromFileSystem(templateId,file);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					try (InputStream inputStream = file.toUri().toURL().openStream()) {
+						load(file, inputStream, templateId);
+					} catch (IOException e) {
+						LOGGER.error(EXCEPTION, e);
+					}
 				}
 			});
 		}

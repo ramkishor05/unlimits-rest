@@ -4,6 +4,7 @@ import java.util.List;
 
 public class JsonSchemaFile {
 	public String id;
+	public String type;
 	public Double orderSequence;
 	public List<JsonSchemaObject> objects;
 

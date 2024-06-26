@@ -18,7 +18,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-public class TokenUtil{
+public class ApiTokenContext{
 	
 	private static String BEARER="Bearer ";
 	
@@ -26,7 +26,7 @@ public class TokenUtil{
 	
 	private static String USER_ID="userId";
 
-	private static final Logger log = LoggerFactory.getLogger(TokenUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(ApiTokenContext.class);
 
 	public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
