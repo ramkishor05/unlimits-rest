@@ -1,4 +1,4 @@
-package org.unlimits.rest.token;
+package org.unlimits.rest.context;
 
 import java.security.Key;
 import java.util.Date;
@@ -113,6 +113,10 @@ public class ApiTokenContext{
 		Map<String, Object> claims = new HashMap<>();
 		return createToken(claims, userName,userId, role);
 	}
+	
+	public static String extendExpiration(String authToken) {
+		return changeExpiration(authToken, buildExprireationDate());
+	}
 
 	public static String changeExpiration(String authToken, Date expiration) {
 		
@@ -136,7 +140,7 @@ public class ApiTokenContext{
 	}
 
 	public static Date buildExprireationDate() {
-		return new Date(System.currentTimeMillis() + 1000 * 60 * 30);
+		return new Date(System.currentTimeMillis() + 1000 * 60 * 30000);
 	}
 
 }
