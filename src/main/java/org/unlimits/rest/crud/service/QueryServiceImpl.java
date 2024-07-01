@@ -12,16 +12,16 @@ import org.unlimits.rest.crud.beans.PageDetail;
 
 public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, EN, ID> {
 	
-	protected void postFind(EN findObject, DT dtoObject) {
+	protected void postFetch(EN findObject, DT dtoObject) {
 
 	}
 	
-	private List<DT> postCall(List<EN> findObjects) {
+	protected List<DT> postFetch(List<EN> findObjects) {
 		List<DT> list = new ArrayList<DT>();
 		for (EN findObject : findObjects) {
 			DT dtoObject = getMapper().mapToDTO(findObject);
 			list.add(dtoObject);
-			postFind(findObject, dtoObject);
+			postFetch(findObject, dtoObject);
 		}
 		return list;
 	}
@@ -39,7 +39,7 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 	@Override
 	public List<DT> findAll(Map<String, List<String>> headers) {
 		List<EN> findObjects = repositoryFindAll(headers);
-		return postCall(findObjects);
+		return postFetch(findObjects);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 	@Override
 	public List<DT> findAll(Map<String, List<String>> headers, Sort sort) {
 		List<EN> findObjects = repositoryFindAll(headers, sort);
-		return postCall(findObjects);
+		return postFetch(findObjects);
 	}
 	
 	/**
@@ -66,7 +66,7 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count) {
 		Pageable pageable = PageRequest.of(pageNumber, count);
 		Page<EN> page = repositoryFindAll(headers, pageable);
-		List<DT> reslist = postCall(page.toList());
+		List<DT> reslist = postFetch(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
@@ -87,7 +87,7 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
 		Pageable pageable = PageRequest.of(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers, pageable);
-		List<DT> reslist = postCall(page.toList());
+		List<DT> reslist = postFetch(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
@@ -100,13 +100,13 @@ public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, 
 	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count) {
 		Pageable pageable = PageRequest.of(pageNumber, count);
 		Page<EN> page =repositoryFindAll(headers, pageable);
-		return postCall(page.toList());
+		return postFetch(page.toList());
 	}
 
 	@Override
 	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
 		Pageable pageable = PageRequest.of(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers,pageable);
-		return postCall(page.toList());
+		return postFetch(page.toList());
 	}
 }
