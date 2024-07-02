@@ -25,6 +25,36 @@ public class ApiTokenContext{
 	private static String USER_ROLE="role";
 	
 	private static String USER_ID="userId";
+	
+	private static ApiTokenContext securityContext;
+	
+	private ThreadLocal<String> userTokenRequest=new ThreadLocal<String>();
+
+	/**
+	 * @return
+	 */
+	public static ApiTokenContext getContext() {
+		synchronized (ApiTokenContext.class) {
+			if(securityContext==null) {
+				securityContext=new ApiTokenContext();
+			}
+		}
+		return securityContext;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getCurrentToken() {
+		return userTokenRequest.get();
+	}
+
+	/**
+	 * @param eoUserAccount
+	 */
+	public void setCurrentToken(String apiToken) {
+		this.userTokenRequest.set(apiToken);
+	}
 
 	private static final Logger log = LoggerFactory.getLogger(ApiTokenContext.class);
 
@@ -140,7 +170,7 @@ public class ApiTokenContext{
 	}
 
 	public static Date buildExprireationDate() {
-		return new Date(System.currentTimeMillis() + 1000 * 60 * 30000);
+		return new Date(System.currentTimeMillis() + 1000 * 60 * 30000000);
 	}
 
 }
