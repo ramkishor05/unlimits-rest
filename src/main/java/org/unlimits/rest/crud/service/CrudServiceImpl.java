@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.unlimits.rest.crud.beans.PageDetail;
@@ -25,7 +24,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 		preAdd(data, mappedToDT,  headers);
 		EN save = getRepository().save(mappedToDT);
 		DT mapToDTO = getMapper().mapToDTO(save);
-		postAdd(mapToDTO);
+		postAdd(mapToDTO, save);
 		return mapToDTO;
 	}
 
@@ -33,7 +32,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 
 	}
 
-	protected void postAdd(DT data) {
+	protected void postAdd(DT data, EN entity) {
 
 	}
 
@@ -43,7 +42,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 		preUpdate(data, mappedToDT, headers );
 		EN save = getRepository().save(mappedToDT);
 		DT mapToDTO = getMapper().mapToDTO(save);
-		postUpdate(mapToDTO);
+		postUpdate(mapToDTO, save);
 		return mapToDTO;
 	}
 
@@ -51,7 +50,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 
 	}
 	
-	protected void postUpdate(DT data) {
+	protected void postUpdate(DT data, EN entity) {
 
 	}
 
@@ -65,7 +64,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 		BeanUtils.copyProperties(findObject, dtoObject, "id");
 		EN save = getRepository().save(dtoObject);
 		DT mapToDTO = getMapper().mapToDTO(save);
-		postUpdate(mapToDTO);
+		postUpdate(mapToDTO, save);
 		return mapToDTO;
 	}
 
@@ -79,11 +78,11 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	public DT find(ID uuid) {
 		EN findObject = getRepository().getReferenceById(uuid);
 		DT dtoObject = getMapper().mapToDTO(findObject);
-		postFind(findObject, dtoObject);
+		postFetch(findObject, dtoObject);
 		return dtoObject;
 	}
 
-	protected void postFind(EN findObject, DT dtoObject) {
+	protected void postFetch(EN findObject, DT dtoObject) {
 
 	}
 
@@ -91,22 +90,22 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	public DT findById(ID uuid) {
 		EN findObject = getRepository().getReferenceById(uuid);
 		DT dtoObject = getMapper().mapToDTO(findObject);
-		postFind(findObject, dtoObject);
+		postFetch(findObject, dtoObject);
 		return dtoObject;
 	}
 
 	@Override
 	public List<DT> findAllById(List<ID> ids) {
 		List<EN> findObjects = getRepository().findAllById(ids);
-		return postCall(findObjects);
+		return postFetch(findObjects);
 	}
 
-	private List<DT> postCall(List<EN> findObjects) {
+	protected List<DT> postFetch(List<EN> findObjects) {
 		List<DT> list = new ArrayList<DT>();
 		for (EN findObject : findObjects) {
 			DT dtoObject = getMapper().mapToDTO(findObject);
 			list.add(dtoObject);
-			postFind(findObject, dtoObject);
+			postFetch(findObject, dtoObject);
 		}
 		return list;
 	}
@@ -114,7 +113,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	@Override
 	public List<DT> findAll(Map<String, List<String>> headers) {
 		List<EN> findObjects = repositoryFindAll(headers);
-		return postCall(findObjects);
+		return postFetch(findObjects);
 	}
 
 	/**
@@ -127,7 +126,7 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	@Override
 	public List<DT> findAll(Map<String, List<String>> headers, Sort sort) {
 		List<EN> findObjects = repositoryFindAll(headers, sort);
-		return postCall(findObjects);
+		return postFetch(findObjects);
 	}
 	
 	/**
@@ -139,9 +138,9 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 
 	@Override
 	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count) {
-		Pageable pageable = PageRequest.of(pageNumber, count);
+		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page = repositoryFindAll(headers, pageable);
-		List<DT> reslist = postCall(page.toList());
+		List<DT> reslist = postFetch(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
@@ -149,6 +148,15 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 		responseDto.setElements(reslist);
 		return responseDto;
 	}
+	
+	public Pageable getPageRequest(int pageNumber, int count){
+		return getPageRequest(pageNumber, count);
+	}
+	
+	public Pageable getPageRequest(int pageNumber, int count, Sort sort){
+		return getPageRequest(pageNumber, count , sort);
+	}
+	
 	
 	/**
 	 * @return
@@ -160,9 +168,9 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 
 	@Override
 	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
-		Pageable pageable = PageRequest.of(pageNumber, count, sort);
+		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers, pageable);
-		List<DT> reslist = postCall(page.toList());
+		List<DT> reslist = postFetch(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
@@ -173,16 +181,16 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 
 	@Override
 	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count) {
-		Pageable pageable = PageRequest.of(pageNumber, count);
+		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page =repositoryFindAll(headers, pageable);
-		return postCall(page.toList());
+		return postFetch(page.toList());
 	}
 
 	@Override
 	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
-		Pageable pageable = PageRequest.of(pageNumber, count, sort);
+		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers,pageable);
-		return postCall(page.toList());
+		return postFetch(page.toList());
 	}
 
 }
