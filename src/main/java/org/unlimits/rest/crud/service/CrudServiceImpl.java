@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.unlimits.rest.crud.beans.PageDetail;
@@ -150,11 +151,11 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 	}
 	
 	public Pageable getPageRequest(int pageNumber, int count){
-		return getPageRequest(pageNumber, count);
+		return PageRequest.of(pageNumber, count);
 	}
 	
 	public Pageable getPageRequest(int pageNumber, int count, Sort sort){
-		return getPageRequest(pageNumber, count , sort);
+		return PageRequest.of(pageNumber, count , sort);
 	}
 	
 	

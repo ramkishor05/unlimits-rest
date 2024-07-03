@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -19,6 +16,9 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 public class ApiTokenContext{
+	
+
+	public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 	
 	private static String BEARER="Bearer ";
 	
@@ -56,17 +56,12 @@ public class ApiTokenContext{
 		this.userTokenRequest.set(apiToken);
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(ApiTokenContext.class);
-
-	public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
-
 	public static String createToken(Map<String, Object> claims, String userName,Long userId, String role) {
-		log.debug("TokenServiceImpl :: createToken() started");
 		return Jwts.builder().setClaims(claims).setSubject(userName)
 				.setHeaderParam(USER_ROLE, role)
 				.setHeaderParam(USER_ID, userId)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(buildExprireationDate())
+				.setExpiration(generateExpriyDate())
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
 	}
 
@@ -126,7 +121,6 @@ public class ApiTokenContext{
 
 	public static Date extractExpiration(String authToken) {
 		String token = authToken.startsWith(BEARER) ? authToken.substring(7) : authToken;
-		System.out.println("token="+token);
 		return extractClaim(token, Claims::getExpiration);
 	}
 
@@ -139,20 +133,17 @@ public class ApiTokenContext{
 	}
 
 	public static String getToken(String userName, Long userId, String role) {
-		log.debug("TokenServiceImpl :: generateToken() started");
 		Map<String, Object> claims = new HashMap<>();
 		return createToken(claims, userName,userId, role);
 	}
 	
-	public static String extendExpiration(String authToken) {
-		return changeExpiration(authToken, buildExprireationDate());
+	public static String extendExpiry(String authToken) {
+		return updateExpiry(authToken, generateExpriyDate());
 	}
 
-	public static String changeExpiration(String authToken, Date expiration) {
+	public static String updateExpiry(String authToken, Date expiration) {
 		
-		log.debug("TokenServiceImpl :: generateToken() started");
 		String token = authToken.startsWith(BEARER) ? authToken.substring(7) : authToken;
-		System.out.println("token="+token);
 		Jws<Claims> parseClaimsJws = Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
 
 		Claims body = parseClaimsJws.getBody();
@@ -165,11 +156,10 @@ public class ApiTokenContext{
 
 	public static Boolean validateToken(String authToken) {
 		String token = authToken.startsWith(BEARER) ? authToken.substring(7) : authToken;
-		log.debug("TokenServiceImpl :: validateToken() started");
 		return !isTokenExpired(token);
 	}
 
-	public static Date buildExprireationDate() {
+	public static Date generateExpriyDate() {
 		return new Date(System.currentTimeMillis() + 1000 * 60 * 30000000);
 	}
 
