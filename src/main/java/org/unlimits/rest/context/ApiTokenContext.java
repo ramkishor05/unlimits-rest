@@ -26,6 +26,8 @@ public class ApiTokenContext{
 	
 	private static String USER_ID="userId";
 	
+	private static String USER_SERVICE="serviceId";
+	
 	private static ApiTokenContext securityContext;
 	
 	private ThreadLocal<String> userTokenRequest=new ThreadLocal<String>();
@@ -56,10 +58,11 @@ public class ApiTokenContext{
 		this.userTokenRequest.set(apiToken);
 	}
 
-	public static String createToken(Map<String, Object> claims, String userName,Long userId, String role) {
+	public static String createToken(Map<String, Object> claims, String userName,Long userId, String role, String serviceType) {
 		return Jwts.builder().setClaims(claims).setSubject(userName)
 				.setHeaderParam(USER_ROLE, role)
 				.setHeaderParam(USER_ID, userId)
+				.setHeaderParam(USER_SERVICE, serviceType)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(generateExpriyDate())
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
@@ -132,9 +135,9 @@ public class ApiTokenContext{
 		return claimsResolver.apply(claims);
 	}
 
-	public static String getToken(String userName, Long userId, String role) {
+	public static String getToken(String userName, Long userId, String role, String serviceType) {
 		Map<String, Object> claims = new HashMap<>();
-		return createToken(claims, userName,userId, role);
+		return createToken(claims, userName,userId, role,serviceType);
 	}
 	
 	public static String extendExpiry(String authToken) {
