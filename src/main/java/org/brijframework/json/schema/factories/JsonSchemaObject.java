@@ -35,6 +35,9 @@ public class JsonSchemaObject {
 	}
 
 	public Map<String, Object> getProperties() {
+		if(properties==null) {
+			properties=new HashMap<String, Object>();
+		}
 		return properties;
 	}
 

@@ -1,5 +1,6 @@
 package org.brijframework.json.schema.factories;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JsonSchemaFile {
@@ -24,7 +25,18 @@ public class JsonSchemaFile {
 		this.orderSequence = orderSequence;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public List<JsonSchemaObject> getObjects() {
+		if(objects==null) {
+			objects=new ArrayList<JsonSchemaObject>();
+		}
 		return objects;
 	}
 
