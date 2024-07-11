@@ -4,20 +4,34 @@
 package org.unlimits.rest.crud.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.brijframework.util.text.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 import org.unlimits.rest.crud.beans.PageDetail;
+import org.unlimits.rest.filters.FilterPredicate;
+import org.unlimits.rest.repository.CustomPredicate;
+import org.unlimits.rest.repository.CustomRepository;
+import org.unlimits.rest.spec.CurdSpecification;
 
 /**
  * @author ram kishor
  */
-public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN, ID> {
+public class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN, ID> {
+	
+	private Map<String, CustomPredicate<EN>> customPredicateMap =new  HashMap<String, CustomPredicate<EN>>();
+	
+	@Override
+	public Map<String, CustomPredicate<EN>> getCustomPredicateMap() {
+		return customPredicateMap;
+	}
 
 	@Override
 	public DT add(DT data, Map<String, List<String>> headers) {
@@ -166,32 +180,37 @@ public abstract class CrudServiceImpl<DT, EN, ID> implements CrudService<DT, EN,
 		return getRepository().findAll(pageable);
 	}
 
-
 	@Override
-	public PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
-		Pageable pageable = getPageRequest(pageNumber, count, sort);
-		Page<EN> page = repositoryFindAll(headers, pageable);
-		List<DT> reslist = postFetch(page.toList());
-		PageDetail responseDto = new PageDetail();
-		responseDto.setPageCount(page.getNumber());
-		responseDto.setTotalCount(page.getTotalElements());
-		responseDto.setTotalPages(page.getTotalPages());
-		responseDto.setElements(reslist);
-		return responseDto;
+	public List<DT> fetchPageList(int pageNumber, int count, Map<String, String> filters) {
+		String idField = getIdField(type());
+		return fetchPageList(pageNumber, count, StringUtil.isNonEmpty(idField) ? Sort.by(idField) : null,
+				filters);
 	}
 
 	@Override
-	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count) {
-		Pageable pageable = getPageRequest(pageNumber, count);
-		Page<EN> page =repositoryFindAll(headers, pageable);
-		return postFetch(page.toList());
+	public List<DT> fetchPageList(int pageNumber, int count, Sort sort, Map<String, String> filters) {
+		Pageable pageable = PageRequest.of(pageNumber, count, sort);
+		Page<EN> page = getPage(pageable, filters);
+		return postCall(page.toList());
 	}
 
-	@Override
-	public List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort) {
-		Pageable pageable = getPageRequest(pageNumber, count, sort);
-		Page<EN> page = repositoryFindAll(headers,pageable);
-		return postFetch(page.toList());
+	private Page<EN> getPage(Pageable pageable, Map<String, String> filters) {
+		if (getRepository() instanceof CustomRepository<EN, ID>) {
+			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
+			if (!CollectionUtils.isEmpty(filters)) {
+				List<FilterPredicate> filterList=new ArrayList<FilterPredicate>();
+				filters.forEach((key, value)->{
+					filterList.add(new FilterPredicate(key, value));
+				});
+				if(filterList.isEmpty()) {
+					return customRepository.findAll(pageable);
+				} else {
+					CurdSpecification<DT, EN, ID> specification=new CurdSpecification<DT, EN, ID>( this,type(),filterList);
+					return customRepository.findAll(specification,pageable);
+				}
+			}
+		}
+		return getRepository().findAll(pageable);
 	}
 
 }

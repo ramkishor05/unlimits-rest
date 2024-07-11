@@ -1,6 +1,7 @@
 package org.unlimits.rest.crud.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,8 +10,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.unlimits.rest.crud.beans.PageDetail;
+import org.unlimits.rest.repository.CustomPredicate;
 
 public abstract class QueryServiceImpl<DT, EN, ID>  implements QueryService<DT, EN, ID> {
+	
+	private Map<String, CustomPredicate<EN>> customPredicateMap =new  HashMap<String, CustomPredicate<EN>>();
+	
+	@Override
+	public Map<String, CustomPredicate<EN>> getCustomPredicateMap() {
+		return customPredicateMap;
+	}
+	
+	public void addCustomPredicate(String key , CustomPredicate<EN> customPredicate) {
+		getCustomPredicateMap().put(key, customPredicate);
+	}
 	
 	protected void postFetch(EN findObject, DT dtoObject) {
 
