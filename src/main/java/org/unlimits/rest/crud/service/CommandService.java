@@ -3,29 +3,64 @@ package org.unlimits.rest.crud.service;
 import java.util.List;
 import java.util.Map;
 
-public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
+import org.springframework.beans.BeanUtils;
 
-	/***
-	 * 
-	 * @param data
-	 * @param headers 
-	 * @return
-	 */
-	DT add(DT data, Map<String,  List<String>> headers);
-	/***
-	 * 
-	 * @param data
-	 * @return
-	 */
-	DT update(DT data, Map<String, List<String>> headers);
+public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	
-	DT update(ID id, DT dto, Map<String,  List<String>> headers);
-	/***
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	Boolean delete(ID uuid);
+	default DT add(DT dtoObject, Map<String, List<String>> headers) {
+		EN entityObject = getMapper().mapToDAO(dtoObject);
+		preAdd(dtoObject, entityObject,  headers);
+		EN addedEntityObject = getRepository().save(entityObject);
+		DT addedDtoObject = getMapper().mapToDTO(addedEntityObject);
+		postAdd(addedDtoObject, addedEntityObject);
+		return addedDtoObject;
+	}
+
+	default void preAdd(DT data, EN entity, Map<String, List<String>> headers) {
+
+	}
+
+	default void postAdd(DT data, EN entity) {
+
+	}
+
+	default DT update(DT dtoObject, Map<String, List<String>> headers) {
+		EN entityObject = getMapper().mapToDAO(dtoObject);
+		preUpdate(dtoObject, entityObject, headers );
+		EN updateEntityObject = getRepository().save(entityObject);
+		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
+		postUpdate(updateDtoObject, updateEntityObject, headers);
+		return updateDtoObject;
+	}
+
+	default void preUpdate(DT data, EN entity, Map<String, List<String>> headers) {
+
+	}
 	
-	DT find(ID uuid);
+	default void postUpdate(DT data, EN entity, Map<String, List<String>> headers) {
+
+	}
+
+	default DT update(ID id, DT dtoObject, Map<String, List<String>> headers) {
+		EN findObject = find(id);
+		if(findObject==null) {
+			return null;
+		}
+		preUpdate(dtoObject, findObject, headers);
+		EN entityObject = getMapper().mapToDAO(dtoObject);
+		BeanUtils.copyProperties(findObject, entityObject, ignoreProperties());
+		EN updateEntityObject = getRepository().save(findObject);
+		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
+		postUpdate(updateDtoObject, updateEntityObject, headers);
+		return updateDtoObject;
+	}
+
+	default String[] ignoreProperties() {
+		return new String[] {"id"};
+	}
+
+	default Boolean delete(ID uuid) {
+		getRepository().deleteById(uuid);
+		return true;
+	}
 }

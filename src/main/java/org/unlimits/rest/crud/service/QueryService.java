@@ -1,11 +1,15 @@
 package org.unlimits.rest.crud.service;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.brijframework.util.text.StringUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.unlimits.rest.crud.beans.PageDetail;
 import org.unlimits.rest.filters.FilterPredicate;
@@ -19,91 +23,92 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
-	/**
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	DT findById(ID uuid);
 	
-	/**
-	 * @param ids
-	 * @return
-	 */
-	List<DT> findAllById(List<ID> ids);
-	/**
-	 * 
-	 * @return
-	 */
-	List<DT> findAll(Map<String, List<String>> headers);
+    default Pageable getPageRequest(int pageNumber, int count){
+		return PageRequest.of(pageNumber, count);
+	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	List<DT> findAll(Map<String, List<String>> headers,Sort sort);
-	
-	/**
-	 * @param pageNumber
-	 * @param count
-	 * @return
-	 */
-	PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count);
+    default Pageable getPageRequest(int pageNumber, int count, Sort sort){
+		return PageRequest.of(pageNumber, count , sort);
+	}
+    
+	default List<DT> postFetch(List<EN> findObjects) {
+		List<DT> list = new ArrayList<DT>();
+		for (EN findObject : findObjects) {
+			DT dtoObject = getMapper().mapToDTO(findObject);
+			list.add(dtoObject);
+			postFetch(findObject, dtoObject);
+		}
+		return list;
+	}
+	default List<DT> findAllById(List<ID> ids) {
+		return postFetch(getRepository().findAllById(ids));
+	}
 
-	/**
-	 * @param pageNumber
-	 * @param count
-	 * @return
-	 */
-	List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count);
+	default List<DT> findAll(Map<String, List<String>> headers) {
+		List<EN> findObjects = repositoryFindAll(headers);
+		return postFetch(findObjects);
+	}
 
-	/**
-	 * @param pageNumber
-	 * @param count
-	 * @param sort
-	 * @return
-	 */
-	PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort);
+	default List<EN> repositoryFindAll(Map<String, List<String>> headers) {
+		return getRepository().findAll();
+	}
 
-	/**
-	 * @param pageNumber
-	 * @param count
-	 * @param sort
-	 * @return
-	 */
-	List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort);
+	default List<DT> findAll(Map<String, List<String>> headers, Sort sort) {
+		List<EN> findObjects = repositoryFindAll(headers, sort);
+		return postFetch(findObjects);
+	}
 	
 	/**
-	 
-	 * @param pageNumber
-	 * @param count
 	 * @return
 	 */
-	PageDetail fetchPageObject(int pageNumber, int count, Map<String, String> filters);
+	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Sort sort) {
+		return getRepository().findAll(sort);
+	}
 
-	/**
-	 * @param pageNumber
-	 * @param count
-	 * @return
-	 */
-	List<DT> fetchPageList(int pageNumber, int count, Map<String, String> filters);
-
-	/**
-	 * @param pageNumber
-	 * @param count
-	 * @param sort
-	 * @return
-	 */
-	PageDetail fetchPageObject(int pageNumber, int count, Sort sort, Map<String, String> filters);
+	
+	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Map<String, String> filters) {
+		Pageable pageable = getPageRequest(pageNumber, count);
+		Page<EN> page = repositoryFindAll(headers, pageable);
+		List<DT> reslist = postFetch(page.toList());
+		PageDetail responseDto = new PageDetail();
+		responseDto.setPageCount(page.getNumber());
+		responseDto.setTotalCount(page.getTotalElements());
+		responseDto.setTotalPages(page.getTotalPages());
+		responseDto.setElements(reslist);
+		return responseDto;
+	}
 	
 	/**
-	 * @param pageNumber
-	 * @param count
-	 * @param sort
 	 * @return
 	 */
-	List<DT> fetchPageList(int pageNumber, int count, Sort sort, Map<String, String> filters);
-	
+	default Page<EN> repositoryFindAll(Map<String, List<String>> headers,Pageable pageable) {
+		return getRepository().findAll(pageable);
+	}
+
+	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, String> filters) {
+		Pageable pageable = getPageRequest(pageNumber, count, sort);
+		Page<EN> page = repositoryFindAll(headers, pageable);
+		List<DT> reslist = postFetch(page.toList());
+		PageDetail responseDto = new PageDetail();
+		responseDto.setPageCount(page.getNumber());
+		responseDto.setTotalCount(page.getTotalElements());
+		responseDto.setTotalPages(page.getTotalPages());
+		responseDto.setElements(reslist);
+		return responseDto;
+	}
+
+	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Map<String, String> filters) {
+		Pageable pageable = getPageRequest(pageNumber, count);
+		Page<EN> page =repositoryFindAll(headers, pageable);
+		return postFetch(page.toList());
+	}
+
+	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, String> filters) {
+		Pageable pageable = getPageRequest(pageNumber, count, sort);
+		Page<EN> page = repositoryFindAll(headers,pageable);
+		return postFetch(page.toList());
+	}
 	/**
 	 * @param root
 	 * @param query
@@ -130,6 +135,10 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 			System.out.println("Invalid config : "+filter.getColumnName());
 			return null;
 		}
+	}
+	
+	default void addCustomPredicate(String key , CustomPredicate<EN> customPredicate) {
+		getCustomPredicateMap().put(key, customPredicate);
 	}
 	
 	/**

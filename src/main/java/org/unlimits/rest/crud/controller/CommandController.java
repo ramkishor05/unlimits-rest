@@ -17,29 +17,15 @@ import org.unlimits.rest.crud.service.CommandService;
 /**
  *  @author ram kishor
  */
-public abstract class CommandController<DT, EN, ID> {
-	
-
-	/**
-	 * 
-	 */
-	public static final String SUCCESSFULLY_PROCCEED = "Successfully procceed";
-	/**
-	 * 
-	 */
-	public static final String FAILED = "0";
-	/**
-	 * 
-	 */
-	public static final String SUCCESS = "1";
+public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID>{
 	
 	public abstract CommandService<DT, EN, ID> getService();
 
 	@PostMapping
-	public Response addr(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
+	default Response add(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().add(dto,headers));
+			response.setData(customizedResponse(getService().add(dto,headers)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -52,10 +38,10 @@ public abstract class CommandController<DT, EN, ID> {
 	}
 	
 	@PutMapping
-	public Response update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
+	default Response update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().update(dto,headers));
+			response.setData(customizedResponse(getService().update(dto,headers)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -67,10 +53,10 @@ public abstract class CommandController<DT, EN, ID> {
 	}
 	
 	@PutMapping("/{id}")
-	public Response update(@PathVariable ID id,@RequestBody DT dto, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
+	default Response update(@PathVariable ID id,@RequestBody DT dto, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
-			response.setData(getService().update(id, dto,headers));
+			response.setData(customizedResponse(getService().update(id, dto,headers)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -82,10 +68,10 @@ public abstract class CommandController<DT, EN, ID> {
 	}
 	
 	@DeleteMapping("/{id}")
-	public Response delete(@PathVariable ID id){
+	default Response delete(@PathVariable ID id){
 		Response response=new Response();
 		try {
-			response.setData(getService().delete(id));
+			response.setData(customizedResponse(getService().delete(id)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -96,11 +82,15 @@ public abstract class CommandController<DT, EN, ID> {
 		}
 	}
 	
+	public default Object customizedResponse(Boolean delete) {
+		return delete;
+	}
+
 	@GetMapping("/{id}")
-	public Response find(@PathVariable ID id){
+	default Response find(@PathVariable ID id){
 		Response response=new Response();
 		try {
-			response.setData(getService().find(id));
+			response.setData(customizedResponse(getService().findById(id)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
