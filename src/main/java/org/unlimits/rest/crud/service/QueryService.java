@@ -11,9 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 import org.unlimits.rest.crud.beans.PageDetail;
 import org.unlimits.rest.filters.FilterPredicate;
 import org.unlimits.rest.repository.CustomPredicate;
+import org.unlimits.rest.repository.CustomRepository;
+import org.unlimits.rest.spec.CurdSpecification;
 import org.unlimits.rest.util.ReflectionDBUtil;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -69,7 +72,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	
 	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Map<String, String> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count);
-		Page<EN> page = repositoryFindAll(headers, pageable);
+		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
@@ -80,15 +83,31 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 	
 	/**
+	 * @param filters 
 	 * @return
 	 */
-	default Page<EN> repositoryFindAll(Map<String, List<String>> headers,Pageable pageable) {
+	default Page<EN> repositoryFindAll(Map<String, List<String>> headers,Pageable pageable, Map<String, String> filters) {
+		if (getRepository() instanceof CustomRepository<EN, ID>) {
+			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
+			if (!CollectionUtils.isEmpty(filters)) {
+				List<FilterPredicate> filterList=new ArrayList<FilterPredicate>();
+				filters.forEach((key, value)->{
+					filterList.add(new FilterPredicate(key, value));
+				});
+				if(filterList.isEmpty()) {
+					return customRepository.findAll(pageable);
+				} else {
+					CurdSpecification<DT, EN, ID> specification=new CurdSpecification<DT, EN, ID>( this,getEntityType(),filterList);
+					return customRepository.findAll(specification,pageable);
+				}
+			}
+		}
 		return getRepository().findAll(pageable);
 	}
 
 	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, String> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
-		Page<EN> page = repositoryFindAll(headers, pageable);
+		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
 		PageDetail responseDto = new PageDetail();
 		responseDto.setPageCount(page.getNumber());
@@ -100,13 +119,13 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 
 	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Map<String, String> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count);
-		Page<EN> page =repositoryFindAll(headers, pageable);
+		Page<EN> page =repositoryFindAll(headers, pageable, filters);
 		return postFetch(page.toList());
 	}
 
 	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, String> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
-		Page<EN> page = repositoryFindAll(headers,pageable);
+		Page<EN> page = repositoryFindAll(headers,pageable, filters);
 		return postFetch(page.toList());
 	}
 	/**
