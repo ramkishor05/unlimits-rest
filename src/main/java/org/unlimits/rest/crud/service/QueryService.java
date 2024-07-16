@@ -48,24 +48,54 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return postFetch(getRepository().findAllById(ids));
 	}
 
-	default List<DT> findAll(Map<String, List<String>> headers) {
-		List<EN> findObjects = repositoryFindAll(headers);
+	default List<DT> findAll(Map<String, List<String>> headers, Map<String, String> filters) {
+		List<EN> findObjects = repositoryFindAll(headers, filters);
 		return postFetch(findObjects);
 	}
 
-	default List<EN> repositoryFindAll(Map<String, List<String>> headers) {
+	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Map<String, String> filters) {
+		if (getRepository() instanceof CustomRepository<EN, ID>) {
+			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
+			if (!CollectionUtils.isEmpty(filters)) {
+				List<FilterPredicate> filterList=new ArrayList<FilterPredicate>();
+				filters.forEach((key, value)->{
+					filterList.add(new FilterPredicate(key, value));
+				});
+				if(filterList.isEmpty()) {
+					return customRepository.findAll();
+				} else {
+					CurdSpecification<DT, EN, ID> specification=new CurdSpecification<DT, EN, ID>( this,getEntityType(),filterList);
+					return customRepository.findAll(specification);
+				}
+			}
+		}
 		return getRepository().findAll();
 	}
 
-	default List<DT> findAll(Map<String, List<String>> headers, Sort sort) {
-		List<EN> findObjects = repositoryFindAll(headers, sort);
+	default List<DT> findAll(Map<String, List<String>> headers, Sort sort,Map<String, String> filters) {
+		List<EN> findObjects = repositoryFindAll(headers, sort, filters);
 		return postFetch(findObjects);
 	}
 	
 	/**
 	 * @return
 	 */
-	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Sort sort) {
+	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Sort sort, Map<String, String> filters) {
+		if (getRepository() instanceof CustomRepository<EN, ID>) {
+			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
+			if (!CollectionUtils.isEmpty(filters)) {
+				List<FilterPredicate> filterList=new ArrayList<FilterPredicate>();
+				filters.forEach((key, value)->{
+					filterList.add(new FilterPredicate(key, value));
+				});
+				if(filterList.isEmpty()) {
+					return customRepository.findAll(sort);
+				} else {
+					CurdSpecification<DT, EN, ID> specification=new CurdSpecification<DT, EN, ID>( this,getEntityType(),filterList);
+					return customRepository.findAll(specification, sort);
+				}
+			}
+		}
 		return getRepository().findAll(sort);
 	}
 

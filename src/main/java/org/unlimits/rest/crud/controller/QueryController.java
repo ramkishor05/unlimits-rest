@@ -49,10 +49,15 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	}
 
 	@GetMapping
-	default Response findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers){
+	default Response findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers, 
+			WebRequest webRequest){
+		Map<String, String> filters=new HashMap<String, String>();
+		webRequest.getParameterMap().forEach((key,values)->{
+			filters.put(key, values[0]);
+		});
 		Response response=new Response();
 		try {
-			response.setData(customizedResponse(getService().findAll(headers)));
+			response.setData(customizedResponse(getService().findAll(headers, filters)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
