@@ -12,8 +12,9 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		EN entityObject = getMapper().mapToDAO(dtoObject);
 		preAdd(dtoObject, entityObject,  headers);
 		EN addedEntityObject = getRepository().save(entityObject);
+		postAdd(dtoObject, addedEntityObject);
 		DT addedDtoObject = getMapper().mapToDTO(addedEntityObject);
-		postAdd(addedDtoObject, addedEntityObject);
+		merge(dtoObject,entityObject,addedDtoObject, addedEntityObject, headers);
 		return addedDtoObject;
 	}
 	
@@ -34,11 +35,20 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		EN entityObject = getMapper().mapToDAO(dtoObject);
 		preUpdate(dtoObject, entityObject, headers );
 		EN updateEntityObject = getRepository().save(entityObject);
+		postUpdate(dtoObject, updateEntityObject, headers);
 		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
-		postUpdate(updateDtoObject, updateEntityObject, headers);
+		merge(dtoObject,entityObject,updateDtoObject, updateEntityObject, headers);
 		return updateDtoObject;
 	}
 	
+	default void merge(DT dtoObject, EN entityObject, DT updateDtoObject, EN updateEntityObject,
+			Map<String, List<String>> headers) {
+	}
+
+	default void postUpdate(DT updateDtoObject, Map<String, List<String>> headers) {
+		
+	}
+
 	default void preUpdate(DT data, Map<String, List<String>> headers) {
 
 	}
