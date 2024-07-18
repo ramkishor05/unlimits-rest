@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	
 	default DT add(DT dtoObject, Map<String, List<String>> headers) {
+		preAdd(dtoObject, headers);
 		EN entityObject = getMapper().mapToDAO(dtoObject);
 		preAdd(dtoObject, entityObject,  headers);
 		EN addedEntityObject = getRepository().save(entityObject);
@@ -15,22 +16,31 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		postAdd(addedDtoObject, addedEntityObject);
 		return addedDtoObject;
 	}
+	
+	default void preAdd(DT data, Map<String, List<String>> headers) {
+		
+	}
 
 	default void preAdd(DT data, EN entity, Map<String, List<String>> headers) {
-
 	}
+
 
 	default void postAdd(DT data, EN entity) {
 
 	}
 
 	default DT update(DT dtoObject, Map<String, List<String>> headers) {
+		preAdd(dtoObject, headers);
 		EN entityObject = getMapper().mapToDAO(dtoObject);
 		preUpdate(dtoObject, entityObject, headers );
 		EN updateEntityObject = getRepository().save(entityObject);
 		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
 		postUpdate(updateDtoObject, updateEntityObject, headers);
 		return updateDtoObject;
+	}
+	
+	default void preUpdate(DT data, Map<String, List<String>> headers) {
+
 	}
 
 	default void preUpdate(DT data, EN entity, Map<String, List<String>> headers) {
