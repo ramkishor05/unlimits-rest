@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.brijframework.util.text.StringUtil;
+import org.brijframework.util.validator.ValidationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -174,7 +175,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		String fieldName = ReflectionDBUtil.getFieldName(type, filter.getColumnName());
 		Field field = ReflectionDBUtil.getField(type, filter.getColumnName());
 		if(StringUtil.isNonEmpty(fieldName) && filter.getColumnValue()!=null) {
-			if(field.getType().isAssignableFrom(filter.getColumnValue().getClass())) {
+			if(!ValidationUtil.isJarClass(field.getType()) && !ValidationUtil.isJDKClass(field.getType()) && field.getType().isAssignableFrom(filter.getColumnValue().getClass())) {
 				Expression<?> path = root.get(fieldName).as(field.getType());
 				return criteriaBuilder.equal(path,filter.getColumnValue());
 			}
