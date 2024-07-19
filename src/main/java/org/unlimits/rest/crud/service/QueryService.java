@@ -1,5 +1,6 @@
 package org.unlimits.rest.crud.service;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,12 +49,12 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return postFetch(getRepository().findAllById(ids));
 	}
 
-	default List<DT> findAll(Map<String, List<String>> headers, Map<String, String> filters) {
+	default List<DT> findAll(Map<String, List<String>> headers, Map<String, Object> filters) {
 		List<EN> findObjects = repositoryFindAll(headers, filters);
 		return postFetch(findObjects);
 	}
 
-	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Map<String, String> filters) {
+	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Map<String, Object> filters) {
 		if (getRepository() instanceof CustomRepository<EN, ID>) {
 			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
 			if (!CollectionUtils.isEmpty(filters)) {
@@ -72,7 +73,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return getRepository().findAll();
 	}
 
-	default List<DT> findAll(Map<String, List<String>> headers, Sort sort,Map<String, String> filters) {
+	default List<DT> findAll(Map<String, List<String>> headers, Sort sort,Map<String, Object> filters) {
 		List<EN> findObjects = repositoryFindAll(headers, sort, filters);
 		return postFetch(findObjects);
 	}
@@ -80,7 +81,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	/**
 	 * @return
 	 */
-	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Sort sort, Map<String, String> filters) {
+	default List<EN> repositoryFindAll(Map<String, List<String>> headers, Sort sort, Map<String, Object> filters) {
 		if (getRepository() instanceof CustomRepository<EN, ID>) {
 			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
 			if (!CollectionUtils.isEmpty(filters)) {
@@ -100,7 +101,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 	
-	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Map<String, String> filters) {
+	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Map<String, Object> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
@@ -116,7 +117,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	 * @param filters 
 	 * @return
 	 */
-	default Page<EN> repositoryFindAll(Map<String, List<String>> headers,Pageable pageable, Map<String, String> filters) {
+	default Page<EN> repositoryFindAll(Map<String, List<String>> headers,Pageable pageable, Map<String, Object> filters) {
 		if (getRepository() instanceof CustomRepository<EN, ID>) {
 			CustomRepository<EN, ID> customRepository= ((CustomRepository<EN, ID>) getRepository());
 			if (!CollectionUtils.isEmpty(filters)) {
@@ -135,7 +136,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return getRepository().findAll(pageable);
 	}
 
-	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, String> filters) {
+	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, Object> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
@@ -147,13 +148,13 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return responseDto;
 	}
 
-	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Map<String, String> filters) {
+	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Map<String, Object> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page =repositoryFindAll(headers, pageable, filters);
 		return postFetch(page.toList());
 	}
 
-	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, String> filters) {
+	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, Object> filters) {
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers,pageable, filters);
 		return postFetch(page.toList());
@@ -170,15 +171,20 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		if(customQuery!=null) {
 			return customQuery.build(type,root, query, criteriaBuilder, filter);
 		}
-		String field = ReflectionDBUtil.getFieldName(type, filter.getColumnName());
-		if(StringUtil.isNonEmpty(field)) {
-			if(filter.getColumnValue().startsWith("!")) {
-				String value =filter.getColumnValue().replace("!", "");
-				Expression<String> path = root.get(field).as(String.class);
+		String fieldName = ReflectionDBUtil.getFieldName(type, filter.getColumnName());
+		Field field = ReflectionDBUtil.getField(type, filter.getColumnName());
+		if(StringUtil.isNonEmpty(fieldName) && filter.getColumnValue()!=null) {
+			if(field.getType().isAssignableFrom(filter.getColumnValue().getClass())) {
+				Expression<?> path = root.get(fieldName).as(field.getType());
+				return criteriaBuilder.equal(path,filter.getColumnValue());
+			}
+			if(filter.getColumnValue().toString().startsWith("!")) {
+				String value =filter.getColumnValue().toString().replace("!", "");
+				Expression<String> path = root.get(fieldName).as(String.class);
 				return criteriaBuilder.notLike(path,"%"+value+"%");
 			}
-			Object value = ReflectionDBUtil.casting(type, field, filter.getColumnValue());
-			Expression<String> path = root.get(field).as(String.class);
+			Object value = ReflectionDBUtil.casting(type, fieldName, filter.getColumnValue().toString());
+			Expression<String> path = root.get(fieldName).as(String.class);
 			return criteriaBuilder.like(path,"%"+value+"%");
 		} else {
 			System.out.println("Invalid config : "+filter.getColumnName());

@@ -51,7 +51,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	@GetMapping
 	default Response findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers, 
 			WebRequest webRequest){
-		Map<String, String> filters=new HashMap<String, String>();
+		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
 			filters.put(key, values[0]);
 		});
@@ -77,7 +77,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			@RequestParam(required = false) String orderBy, 
 			@RequestParam(required = false) String sortOrder, 
 			WebRequest webRequest){
-		Map<String, String> filters=new HashMap<String, String>();
+		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
 			filters.put(key, values[0]);
 		});
@@ -131,7 +131,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			@RequestParam(required = false) String orderBy, 
 			@RequestParam(required = false) String sortOrder,
 			WebRequest webRequest){
-		Map<String, String> filters=new HashMap<String, String>();
+		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
 			filters.put(key, values[0]);
 		});

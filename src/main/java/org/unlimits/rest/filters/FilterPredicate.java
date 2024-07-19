@@ -4,7 +4,7 @@ public class FilterPredicate {
 	
 	private String columnName;
 
-	private String columnValue;
+	private Object columnValue;
 	
 	/**
 	 * 
@@ -13,7 +13,7 @@ public class FilterPredicate {
 	}
 	
 	
-	public FilterPredicate(String columnName, String columnValue) {
+	public FilterPredicate(String columnName, Object columnValue) {
 		super();
 		this.columnName = columnName;
 		this.columnValue = columnValue;
@@ -27,7 +27,7 @@ public class FilterPredicate {
 		this.columnName = columnName;
 	}
 
-	public String getColumnValue() {
+	public Object getColumnValue() {
 		return columnValue;
 	}
 
