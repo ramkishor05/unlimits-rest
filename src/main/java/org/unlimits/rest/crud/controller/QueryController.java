@@ -30,10 +30,14 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	public abstract QueryService<DT, EN, ID> getService();
 	
 	@GetMapping("/findAllById/{ids}")
-	default Response findAllById(@PathVariable List<ID> ids){
+	default Response findAllById(@RequestHeader(required =false)  MultiValueMap<String,String> headers ,@PathVariable List<ID> ids, WebRequest webRequest){
+		Map<String, Object> filters=new HashMap<String, Object>();
+		webRequest.getParameterMap().forEach((key,values)->{
+			filters.put(key, values[0]);
+		});
 		Response response=new Response();
 		try {
-			response.setData(customizedResponse(getService().findAllById(ids)));
+			response.setData(customizedResponse(getService().findAllById(ids, headers, filters)));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;

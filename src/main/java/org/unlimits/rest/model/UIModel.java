@@ -5,6 +5,8 @@ public class UIModel {
 	private Long id;
 
 	private Double orderSequence;
+	
+	private String recordState;
 
 	public Long getId() {
 		return id;
@@ -24,6 +26,13 @@ public class UIModel {
 	public void setOrderSequence(Double orderSequence) {
 		this.orderSequence = orderSequence;
 	}
-	
+
+	public String getRecordState() {
+		return recordState;
+	}
+
+	public void setRecordState(String recordState) {
+		this.recordState = recordState;
+	}
 	
 }

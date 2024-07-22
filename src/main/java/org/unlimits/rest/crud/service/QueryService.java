@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.brijframework.util.text.StringUtil;
-import org.brijframework.util.validator.ValidationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +21,10 @@ import org.unlimits.rest.spec.CurdSpecification;
 import org.unlimits.rest.util.ReflectionDBUtil;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -37,6 +38,10 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return PageRequest.of(pageNumber, count , sort);
 	}
     
+    default void preFetch(Map<String, List<String>> headers, Map<String, Object> filters){
+    	
+    }
+    
 	default List<DT> postFetch(List<EN> findObjects) {
 		List<DT> list = new ArrayList<DT>();
 		for (EN findObject : findObjects) {
@@ -46,11 +51,15 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		}
 		return list;
 	}
-	default List<DT> findAllById(List<ID> ids) {
+	
+	
+	default List<DT> findAllById(List<ID> ids, Map<String, List<String>> headers, Map<String, Object> filters) {
+		preFetch(headers, filters);
 		return postFetch(getRepository().findAllById(ids));
 	}
 
 	default List<DT> findAll(Map<String, List<String>> headers, Map<String, Object> filters) {
+		preFetch(headers, filters);
 		List<EN> findObjects = repositoryFindAll(headers, filters);
 		return postFetch(findObjects);
 	}
@@ -75,6 +84,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 	default List<DT> findAll(Map<String, List<String>> headers, Sort sort,Map<String, Object> filters) {
+		preFetch(headers, filters);
 		List<EN> findObjects = repositoryFindAll(headers, sort, filters);
 		return postFetch(findObjects);
 	}
@@ -103,6 +113,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 
 	
 	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Map<String, Object> filters) {
+		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
@@ -138,6 +149,7 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, Object> filters) {
+		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
@@ -150,12 +162,14 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Map<String, Object> filters) {
+		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page =repositoryFindAll(headers, pageable, filters);
 		return postFetch(page.toList());
 	}
 
 	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count, Sort sort, Map<String, Object> filters) {
+		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers,pageable, filters);
 		return postFetch(page.toList());
@@ -175,17 +189,24 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		String fieldName = ReflectionDBUtil.getFieldName(type, filter.getColumnName());
 		Field field = ReflectionDBUtil.getField(type, filter.getColumnName());
 		if(StringUtil.isNonEmpty(fieldName) && filter.getColumnValue()!=null) {
-			if(!ValidationUtil.isJarClass(field.getType()) && !ValidationUtil.isJDKClass(field.getType()) && field.getType().isAssignableFrom(filter.getColumnValue().getClass())) {
-				Expression<?> path = root.get(fieldName).as(field.getType());
-				return criteriaBuilder.equal(path,filter.getColumnValue());
+			if(filter.getColumnValue() instanceof List<?>) {
+				@SuppressWarnings("unchecked")
+				List<Object> value =(List<Object>) filter.getColumnValue();
+				Path<Object> path = root.get(fieldName);
+				In<Object> fieldNameIn = criteriaBuilder.in(path);
+				fieldNameIn.as(field.getType());
+				fieldNameIn.value(value);
+				return fieldNameIn;
 			}
 			if(filter.getColumnValue().toString().startsWith("!")) {
 				String value =filter.getColumnValue().toString().replace("!", "");
-				Expression<String> path = root.get(fieldName).as(String.class);
+				Expression<String> path = root.get(fieldName);
+				path.as(String.class);
 				return criteriaBuilder.notLike(path,"%"+value+"%");
 			}
 			Object value = ReflectionDBUtil.casting(type, fieldName, filter.getColumnValue().toString());
-			Expression<String> path = root.get(fieldName).as(String.class);
+			Expression<String> path = root.get(fieldName);
+			path.as(String.class);
 			return criteriaBuilder.like(path,"%"+value+"%");
 		} else {
 			System.out.println("Invalid config : "+filter.getColumnName());
