@@ -3,7 +3,6 @@
  */
 package org.unlimits.rest.crud.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +30,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	
 	@GetMapping("/findAllById/{ids}")
 	default Response findAllById(@RequestHeader(required =false)  MultiValueMap<String,String> headers ,@PathVariable List<ID> ids, WebRequest webRequest){
-		Map<String, Object> filters=new HashMap<String, Object>();
-		webRequest.getParameterMap().forEach((key,values)->{
-			filters.put(key, values[0]);
-		});
+		Map<String, Object> filters = getfilters(webRequest);
 		Response response=new Response();
 		try {
 			response.setData(customizedResponse(getService().findAllById(ids, headers, filters)));
@@ -48,7 +44,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			return response;
 		}
 	}
-	
+
 	default Object customizedResponse(List<DT> values) {
 		return values;
 	}
@@ -56,10 +52,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	@GetMapping
 	default Response findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers, 
 			WebRequest webRequest){
-		Map<String, Object> filters=new HashMap<String, Object>();
-		webRequest.getParameterMap().forEach((key,values)->{
-			filters.put(key, values[0]);
-		});
+		Map<String, Object> filters = getfilters(webRequest);
 		Response response=new Response();
 		try {
 			response.setData(customizedResponse(getService().findAll(headers, filters)));
@@ -83,10 +76,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			@RequestParam(required = false) String orderBy, 
 			@RequestParam(required = false) String sortOrder, 
 			WebRequest webRequest){
-		Map<String, Object> filters=new HashMap<String, Object>();
-		webRequest.getParameterMap().forEach((key,values)->{
-			filters.put(key, values[0]);
-		});
+		Map<String, Object> filters = getfilters(webRequest);
 	
 		Response response=new Response();
 		try {
@@ -137,10 +127,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			@RequestParam(required = false) String orderBy, 
 			@RequestParam(required = false) String sortOrder,
 			WebRequest webRequest){
-		Map<String, Object> filters=new HashMap<String, Object>();
-		webRequest.getParameterMap().forEach((key,values)->{
-			filters.put(key, values[0]);
-		});
+		Map<String, Object> filters = getfilters(webRequest);
 
 		Response response=new Response();
 		try {

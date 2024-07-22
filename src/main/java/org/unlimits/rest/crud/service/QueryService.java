@@ -30,7 +30,12 @@ import jakarta.persistence.criteria.Root;
 
 public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	
-    default Pageable getPageRequest(int pageNumber, int count){
+    public static final String EMPTY = "";
+	public static final String NULL = "null";
+	public static final String NOT = "!";
+	public static final String PERCENTAGE = "%";
+
+	default Pageable getPageRequest(int pageNumber, int count){
 		return PageRequest.of(pageNumber, count);
 	}
 	
@@ -191,27 +196,41 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		if(StringUtil.isNonEmpty(fieldName) && filter.getColumnValue()!=null) {
 			if(filter.getColumnValue() instanceof List<?>) {
 				@SuppressWarnings("unchecked")
-				List<Object> value =(List<Object>) filter.getColumnValue();
+				List<Object> values =(List<Object>) filter.getColumnValue();
 				Path<Object> path = root.get(fieldName);
 				In<Object> fieldNameIn = criteriaBuilder.in(path);
 				fieldNameIn.as(field.getType());
-				fieldNameIn.value(value);
+				fieldNameIn.value(values);
+				List<Object> empltylist = values.stream().filter(value->isNullOrEmpty(value)).toList();
+				if(!empltylist.isEmpty()) {
+					return criteriaBuilder.or(fieldNameIn, criteriaBuilder.isNull(path));
+				}
 				return fieldNameIn;
 			}
-			if(filter.getColumnValue().toString().startsWith("!")) {
-				String value =filter.getColumnValue().toString().replace("!", "");
+			if(filter.getColumnValue().toString().startsWith(NOT)) {
+				String value =filter.getColumnValue().toString().replace(NOT, EMPTY);
 				Expression<String> path = root.get(fieldName);
-				path.as(String.class);
-				return criteriaBuilder.notLike(path,"%"+value+"%");
+				Predicate notLike = criteriaBuilder.notLike(path,PERCENTAGE+value+PERCENTAGE);
+				if(isNullOrEmpty(value)) {
+					return criteriaBuilder.or(notLike, criteriaBuilder.isNull(path));
+				}
+				return notLike;
 			}
 			Object value = ReflectionDBUtil.casting(type, fieldName, filter.getColumnValue().toString());
 			Expression<String> path = root.get(fieldName);
-			path.as(String.class);
-			return criteriaBuilder.like(path,"%"+value+"%");
+			Predicate like = criteriaBuilder.like(path,PERCENTAGE+value+PERCENTAGE);
+			if(isNullOrEmpty(value)) {
+				return criteriaBuilder.or(like, criteriaBuilder.isNull(path));
+			}
+			return like;
 		} else {
 			System.out.println("Invalid config : "+filter.getColumnName());
 			return null;
 		}
+	}
+
+	default boolean isNullOrEmpty(Object value) {
+		return value==null || EMPTY.equalsIgnoreCase(value.toString()) || NULL.equalsIgnoreCase(value.toString());
 	}
 	
 	default void addCustomPredicate(String key , CustomPredicate<EN> customPredicate) {

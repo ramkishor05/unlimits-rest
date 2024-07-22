@@ -45,8 +45,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 			return null;
 		}
 		preUpdate(dtoObject, findObject, headers);
-		EN entityObject = getMapper().mapToDAO(dtoObject);
-		updateProperties(findObject, entityObject);
+		EN entityObject=updateProperties(dtoObject, findObject);
 		EN updateEntityObject = getRepository().save(findObject);
 		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
 		postUpdate(updateDtoObject, updateEntityObject, headers);
@@ -80,13 +79,14 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 
-	default void updateProperties(EN findObject, EN entityObject) {
+	default EN updateProperties(DT source, EN target) {
 		if(CollectionUtils.isEmpty(ignoreProperties())) {
-			BeanUtils.copyProperties(findObject, entityObject);
+			BeanUtils.copyProperties(source, target);
 		} else {
 			String[] ignoreProperties=new String[ignoreProperties().size()];
-			BeanUtils.copyProperties(findObject, entityObject, ignoreProperties().toArray(ignoreProperties));
+			BeanUtils.copyProperties(source, target, ignoreProperties().toArray(ignoreProperties));
 		}
+		return target;
 	}
 		
 	default Boolean delete(ID uuid) {
