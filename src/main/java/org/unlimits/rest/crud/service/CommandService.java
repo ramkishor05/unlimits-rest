@@ -1,9 +1,13 @@
 package org.unlimits.rest.crud.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.brijframework.util.accessor.PropertyAccessorUtil;
+import org.brijframework.util.support.ReflectionAccess;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
 public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	
@@ -31,22 +35,23 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 	default DT update(DT dtoObject, Map<String, List<String>> headers) {
-		preAdd(dtoObject, headers);
-		EN entityObject = getMapper().mapToDAO(dtoObject);
-		preUpdate(dtoObject, entityObject, headers );
-		EN updateEntityObject = getRepository().save(entityObject);
-		postUpdate(dtoObject, updateEntityObject, headers);
-		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
-		merge(dtoObject,entityObject,updateDtoObject, updateEntityObject, headers);
-		return updateDtoObject;
-	}
-	
-	default void merge(DT dtoObject, EN entityObject, DT updateDtoObject, EN updateEntityObject,
-			Map<String, List<String>> headers) {
+		return update(PropertyAccessorUtil.getProperty(dtoObject, getPrimaryKey(), ReflectionAccess.PRIVATE), dtoObject, headers);
 	}
 
-	default void postUpdate(DT updateDtoObject, Map<String, List<String>> headers) {
-		
+	default DT update(ID id, DT dtoObject, Map<String, List<String>> headers) {
+		preUpdate(dtoObject, headers);
+		EN findObject = find(id);
+		if(findObject==null) {
+			return null;
+		}
+		preUpdate(dtoObject, findObject, headers);
+		EN entityObject = getMapper().mapToDAO(dtoObject);
+		updateProperties(findObject, entityObject);
+		EN updateEntityObject = getRepository().save(findObject);
+		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
+		postUpdate(updateDtoObject, updateEntityObject, headers);
+		merge(dtoObject,entityObject,updateDtoObject, updateEntityObject, headers);
+		return updateDtoObject;
 	}
 
 	default void preUpdate(DT data, Map<String, List<String>> headers) {
@@ -56,29 +61,34 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	default void preUpdate(DT data, EN entity, Map<String, List<String>> headers) {
 
 	}
-	
+
+	default void postUpdate(DT updateDtoObject, Map<String, List<String>> headers) {
+		
+	}
+
 	default void postUpdate(DT data, EN entity, Map<String, List<String>> headers) {
 
 	}
+	
+	default void merge(DT dtoObject, EN entityObject, DT updateDtoObject, EN updateEntityObject,
+			Map<String, List<String>> headers) {
+	}
 
-	default DT update(ID id, DT dtoObject, Map<String, List<String>> headers) {
-		EN findObject = find(id);
-		if(findObject==null) {
-			return null;
+
+	default List<String> ignoreProperties() {
+		return Arrays.asList(getPrimaryKey());
+	}
+
+
+	default void updateProperties(EN findObject, EN entityObject) {
+		if(CollectionUtils.isEmpty(ignoreProperties())) {
+			BeanUtils.copyProperties(findObject, entityObject);
+		} else {
+			String[] ignoreProperties=new String[ignoreProperties().size()];
+			BeanUtils.copyProperties(findObject, entityObject, ignoreProperties().toArray(ignoreProperties));
 		}
-		preUpdate(dtoObject, findObject, headers);
-		EN entityObject = getMapper().mapToDAO(dtoObject);
-		BeanUtils.copyProperties(findObject, entityObject, ignoreProperties());
-		EN updateEntityObject = getRepository().save(findObject);
-		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
-		postUpdate(updateDtoObject, updateEntityObject, headers);
-		return updateDtoObject;
 	}
-
-	default String[] ignoreProperties() {
-		return new String[] {"id"};
-	}
-
+		
 	default Boolean delete(ID uuid) {
 		getRepository().deleteById(uuid);
 		return true;

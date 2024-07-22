@@ -30,6 +30,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
 		}catch (Exception e) {
+			e.printStackTrace();
 			response.setSuccess(FAILED);
 			response.setMessage(e.getMessage());
 			return response;
@@ -46,6 +47,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
 		}catch (Exception e) {
+			e.printStackTrace();
 			response.setSuccess(FAILED);
 			response.setMessage(e.getMessage());
 			return response;
@@ -61,6 +63,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
 		}catch (Exception e) {
+			e.printStackTrace();
 			response.setSuccess(FAILED);
 			response.setMessage(e.getMessage());
 			return response;
@@ -76,6 +79,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
 		}catch (Exception e) {
+			e.printStackTrace();
 			response.setSuccess(FAILED);
 			response.setMessage(e.getMessage());
 			return response;
@@ -95,6 +99,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
 		}catch (Exception e) {
+			e.printStackTrace();
 			response.setSuccess(FAILED);
 			response.setMessage(e.getMessage());
 			return response;

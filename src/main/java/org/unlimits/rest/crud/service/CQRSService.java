@@ -28,7 +28,24 @@ public interface CQRSService<DT, EN, ID> {
 	GenericMapper<EN, DT>  getMapper();
 	
     default Type getEntityType() {
-		return ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+		return getEntityType(getClass());
+	}
+    
+    default Type getEntityType(Class<?> type) {
+		Type[] genericInterfaces = type.getGenericInterfaces();
+		if(type.getGenericSuperclass() instanceof ParameterizedType) {
+			Type entry = ((ParameterizedType) type.getGenericSuperclass()).getActualTypeArguments()[1];
+			return entry;
+		}
+		for(Type genericInterface:  genericInterfaces) {
+			if(genericInterface instanceof ParameterizedType) {
+				Type entry = ((ParameterizedType) genericInterface).getActualTypeArguments()[1];
+				return entry;
+			} else if(genericInterface instanceof Class<?>) {
+				return getEntityType((Class<?>) genericInterface);
+			}
+		}
+		return type;
 	}
 
     default String getPrimaryKey() {
