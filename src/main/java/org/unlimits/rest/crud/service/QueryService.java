@@ -243,5 +243,12 @@ public interface QueryService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	default Map<String, CustomPredicate<EN>> getCustomPredicateMap(){
 		return new HashMap<String, CustomPredicate<EN>>();
 	}
+	
+	/**
+	 * @return
+	 */
+	default Map<String, String> getCustomSortingMap(){
+		return new HashMap<String, String>();
+	}
 
 }

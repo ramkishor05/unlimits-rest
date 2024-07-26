@@ -81,10 +81,10 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 		Response response=new Response();
 		try {
 			if(!ObjectUtils.isEmpty(orderBy)) {
-				String findEntityKey = getService().findEntityKey(orderBy);
+				String findEntityKey = findSortingKey(orderBy);
 				if(StringUtil.isNonEmpty(findEntityKey)) {
 					Sort by= ObjectUtils.isEmpty(sortOrder) ? 
-						Sort.by(new Order(Direction.ASC, getService().findEntityKey(orderBy))):
+						Sort.by(new Order(Direction.ASC, findSortingKey(orderBy))):
 						Sort.by(new Order(Direction.fromString(sortOrder.trim().toUpperCase()), findEntityKey));
 					response.setData(customizedResponse(getService().fetchPageObject(headers, pageNumber, count, by, filters)));
 				}else {
@@ -92,11 +92,11 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 				}
 			} else if(!ObjectUtils.isEmpty(sort) ) {
 				String[] sortArray = sort.split(":");
-				String findEntityKey = getService().findEntityKey(orderBy);
+				String findEntityKey = findSortingKey(orderBy);
 				if(StringUtil.isNonEmpty(findEntityKey)) {
 					Sort by =sortArray.length==1 ? 
-					Sort.by(new Order(Direction.ASC, getService().findEntityKey(sortArray[0].trim()))):
-					Sort.by(new Order(Direction.fromString(sortArray[1].trim().toUpperCase()), getService().findEntityKey(sortArray[0].trim()))) ; 
+					Sort.by(new Order(Direction.ASC, findSortingKey(sortArray[0].trim()))):
+					Sort.by(new Order(Direction.fromString(sortArray[1].trim().toUpperCase()), findSortingKey(sortArray[0].trim()))) ; 
 					response.setData(customizedResponse(getService().fetchPageObject(headers,pageNumber, count, by, filters)));
 				}else {
 					response.setData(customizedResponse(getService().fetchPageObject(headers,pageNumber, count, filters)));
@@ -115,6 +115,19 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 		}
 	}
 	
+	public default String findSortingKey(String orderBy) {
+		QueryService<DT, EN, ID> service = getService();
+		String findEntityKey = service.findEntityKey(orderBy);
+		if(StringUtil.isNonEmpty(findEntityKey)) {
+			return findEntityKey;
+		}
+		findEntityKey=service.getCustomSortingMap().get(orderBy);
+		if(StringUtil.isNonEmpty(findEntityKey)) {
+			return findEntityKey;
+		}
+		return service.getPrimaryKey();
+	}
+
 	public default Object customizedResponse(PageDetail fetchPageObject) {
 		return fetchPageObject;
 	}
@@ -132,10 +145,10 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 		Response response=new Response();
 		try {
 			if(!ObjectUtils.isEmpty(orderBy)) {
-				String findEntityKey = getService().findEntityKey(orderBy);
+				String findEntityKey = findSortingKey(orderBy);
 				if(StringUtil.isNonEmpty(findEntityKey)) {
 					Sort by= ObjectUtils.isEmpty(sortOrder) ? 
-						Sort.by(new Order(Direction.ASC, getService().findEntityKey(orderBy))):
+						Sort.by(new Order(Direction.ASC, findSortingKey(orderBy))):
 						Sort.by(new Order(Direction.fromString(sortOrder.trim().toUpperCase()), findEntityKey));
 					response.setData(customizedResponse(getService().fetchPageList(headers, pageNumber, count, by, filters)));
 				}else {
@@ -143,11 +156,11 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 				}
 			} else if(!ObjectUtils.isEmpty(sort) ) {
 				String[] sortArray = sort.split(":");
-				String findEntityKey = getService().findEntityKey(orderBy);
+				String findEntityKey = findSortingKey(orderBy);
 				if(StringUtil.isNonEmpty(findEntityKey)) {
 					Sort by =sortArray.length==1 ? 
-					Sort.by(new Order(Direction.ASC, getService().findEntityKey(sortArray[0].trim()))):
-					Sort.by(new Order(Direction.fromString(sortArray[1].trim().toUpperCase()), getService().findEntityKey(sortArray[0].trim()))) ; 
+					Sort.by(new Order(Direction.ASC, findSortingKey(sortArray[0].trim()))):
+					Sort.by(new Order(Direction.fromString(sortArray[1].trim().toUpperCase()), findSortingKey(sortArray[0].trim()))) ; 
 					response.setData(customizedResponse(getService().fetchPageList(headers, pageNumber, count, by, filters)));
 				}else {
 					response.setData(customizedResponse(getService().fetchPageList(headers, pageNumber, count, filters)));
