@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.unlimits.rest.constants.RestConstant.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.context.request.WebRequest;
@@ -32,19 +33,43 @@ public interface CQRSController<DT, EN, ID> {
 	default Map<String, Object> getfilters(WebRequest webRequest) {
 		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
-			if(values!=null ) {
-				if(values.length==1) {
-					filters.put(key, values[0]);
-				} else {
-					filters.put(key, Arrays.asList(values));
+			if(!sortingKeys(key)) {
+				if(values!=null ) {
+					if(values.length==1) {
+						filters.put(key, values[0]);
+					} else {
+						filters.put(key, Arrays.asList(values));
+					}
+				}else {
+					filters.put(key, values);
 				}
-			}else {
-				filters.put(key, values);
 			}
 		});
 		return filters;
 	}
 	
+	default Map<String, Object> getSortings(WebRequest webRequest) {
+		Map<String, Object> filters=new HashMap<String, Object>();
+		webRequest.getParameterMap().forEach((key,values)->{
+			if(sortingKeys(key)) {
+				if(values!=null ) {
+					if(values.length==1) {
+						filters.put(key, values[0]);
+					} else {
+						filters.put(key, Arrays.asList(values));
+					}
+				}else {
+					filters.put(key, values);
+				}
+			}
+		});
+		return filters;
+	}
+
+
+	default boolean sortingKeys(String key) {
+		return SORT_ORDER.equalsIgnoreCase(key) || ORDER_BY.equalsIgnoreCase(key) ||SORT.equalsIgnoreCase(key);
+	}
 	
 	@GetMapping("/{id}")
 	default Response find(@PathVariable ID id){
