@@ -310,9 +310,12 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 	 */
 	default Predicate build(Type type, Root<EN> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder,
 			FilterPredicate filter) {
-		CustomPredicate<EN> customQuery = getCustomPredicateMap().get(filter.getColumnName());
-		if (customQuery != null) {
-			return customQuery.build(type, root, query, criteriaBuilder, filter);
+		Map<String, CustomPredicate<EN>> customSortingMap = getCustomPredicateMap();
+		if(!CollectionUtils.isEmpty(customSortingMap)) {
+			CustomPredicate<EN> customQuery = customSortingMap.get(filter.getColumnName());
+			if (customQuery != null) {
+				return customQuery.build(type, root, query, criteriaBuilder, filter);
+			}
 		}
 		String fieldName = ReflectionDBUtil.getFieldName(type, filter.getColumnName());
 		Field field = ReflectionDBUtil.getField(type, filter.getColumnName());

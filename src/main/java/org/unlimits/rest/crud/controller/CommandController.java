@@ -3,6 +3,10 @@
  */
 package org.unlimits.rest.crud.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.brijframework.util.text.StringUtil;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +23,21 @@ import org.unlimits.rest.crud.service.CommandService;
  */
 public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID>{
 	
-	public abstract CommandService<DT, EN, ID> getService();
+	public CommandService<DT, EN, ID> getService();
+	
+	public static Map<String, String> getEndpointMapping(){
+		return new HashMap<String, String>();
+	}
+	
+	public static String findEndpoint(String method) {
+		String endpointKey=method;
+		String endpointVal=getEndpointMapping().get(endpointKey);
+		System.out.println("endpointKey: "+endpointKey);
+		System.out.println("endpointVal: "+endpointVal);
+		return StringUtil.isEmpty(endpointVal)? "": endpointVal;
+	}
 
-	@PostMapping
+	@PostMapping("#{T(org.unlimits.rest.crud.controller.CommandController).findEndpoint('add')}")
 	default Response add(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
@@ -38,7 +54,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 		
 	}
 	
-	@PutMapping
+	@PutMapping("#{T(org.unlimits.rest.crud.controller.CommandController).findEndpoint('update')}")
 	default Response update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
 		Response response=new Response();
 		try {
