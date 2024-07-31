@@ -1,9 +1,9 @@
 package org.unlimits.rest.crud.beans;
 
-public class Response {
+public class Response<T extends Object> {
 	private String success;
 	private String message;
-	private Object data;
+	private T data;
 
 	public String getSuccess() {
 		return success;
@@ -21,11 +21,11 @@ public class Response {
 		this.message = message;
 	}
 
-	public Object getData() {
+	public T getData() {
 		return data;
 	}
 
-	public void setData(Object data) {
+	public void setData(T data) {
 		this.data = data;
 	}
 
