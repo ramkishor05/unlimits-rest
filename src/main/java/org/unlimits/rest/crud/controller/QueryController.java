@@ -23,10 +23,10 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	public abstract QueryService<DT, EN, ID> getService();
 	
 	@GetMapping("/findAllById/{ids}")
-	default Response findAllById(@RequestHeader(required =false)  MultiValueMap<String,String> headers ,@PathVariable List<ID> ids, WebRequest webRequest){
-		Map<String, Object> filters = getfilters(webRequest);
-		Map<String, Object> sortOrders = getSortings(webRequest);
-		Response response=new Response();
+	default Response<Object> findAllById(@RequestHeader(required =false)  MultiValueMap<String,String> headers ,@PathVariable List<ID> ids, WebRequest webRequest){
+		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().findAllById(ids, headers, sortOrders, filters)));
 			response.setSuccess(SUCCESS);
@@ -45,14 +45,14 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	}
 
 	@GetMapping
-	default Response findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers, 
+	default Response<Object> findAll(@RequestHeader(required =false)  MultiValueMap<String,String> headers, 
 			WebRequest webRequest){
 		
-		Map<String, Object> filters = getfilters(webRequest);
+		Map<String, Object> filters = CQRSController.getfilters(webRequest);
 		
-		Map<String, Object> sortOrders = getSortings(webRequest);
+		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		
-		Response response=new Response();
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().findAll(headers, sortOrders, filters)));
 			response.setSuccess(SUCCESS);
@@ -67,14 +67,14 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	}
 
 	@GetMapping("/page/data/{pageNumber}/count/{count}")
-	default Response fetchPageObject(
+	default Response<Object> fetchPageObject(
 			@RequestHeader(required =false) MultiValueMap<String,String> headers,
 			@PathVariable int pageNumber,
 			@PathVariable int count, 
 			WebRequest webRequest){
-		Map<String, Object> filters = getfilters(webRequest);
-		Map<String, Object> sortOrders = getSortings(webRequest);
-		Response response=new Response();
+		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().fetchPageObject(headers, pageNumber, count, sortOrders, filters)));
 			response.setSuccess(SUCCESS);
@@ -93,15 +93,15 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	}
 
 	@GetMapping("/page/list/{pageNumber}/count/{count}")
-	default Response fetchPageList(
+	default Response<Object> fetchPageList(
 			@RequestHeader(required =false)  MultiValueMap<String,String> headers, 
 			@PathVariable int pageNumber,@PathVariable int count,
 			WebRequest webRequest){
-		Map<String, Object> filters = getfilters(webRequest);
+		Map<String, Object> filters = CQRSController.getfilters(webRequest);
 		
-		Map<String, Object> sortOrders = getSortings(webRequest);
+		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 
-		Response response=new Response();
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().fetchPageList(headers, pageNumber, count, sortOrders, filters)));
 			response.setSuccess(SUCCESS);

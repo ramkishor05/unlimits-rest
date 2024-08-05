@@ -38,8 +38,8 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	}
 
 	@PostMapping("#{T(org.unlimits.rest.crud.controller.CommandController).findEndpoint('add')}")
-	default Response add(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
-		Response response=new Response();
+	default Response<Object> add(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().add(dto,headers)));
 			response.setSuccess(SUCCESS);
@@ -55,8 +55,8 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	}
 	
 	@PutMapping("#{T(org.unlimits.rest.crud.controller.CommandController).findEndpoint('update')}")
-	default Response update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
-		Response response=new Response();
+	default Response<Object> update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers){
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().update(dto,headers)));
 			response.setSuccess(SUCCESS);
@@ -71,8 +71,8 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	}
 	
 	@PutMapping("/{id}")
-	default Response update(@PathVariable ID id,@RequestBody DT dto, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
-		Response response=new Response();
+	default Response<Object> update(@PathVariable ID id,@RequestBody DT dto, @RequestHeader(required =false)  MultiValueMap<String,String> headers){
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().update(id, dto,headers)));
 			response.setSuccess(SUCCESS);
@@ -87,8 +87,8 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	}
 	
 	@DeleteMapping("/{id}")
-	default Response delete(@PathVariable ID id){
-		Response response=new Response();
+	default Response<Object> delete(@PathVariable ID id){
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().delete(id)));
 			response.setSuccess(SUCCESS);
@@ -107,8 +107,8 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	}
 
 	@GetMapping("/{id}")
-	default Response find(@PathVariable ID id){
-		Response response=new Response();
+	default Response<Object> find(@PathVariable ID id){
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().findById(id)));
 			response.setSuccess(SUCCESS);

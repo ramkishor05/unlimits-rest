@@ -30,7 +30,7 @@ public interface CQRSController<DT, EN, ID> {
 	public abstract CQRSService<DT, EN, ID> getService();
 	
 
-	default Map<String, Object> getfilters(WebRequest webRequest) {
+	static Map<String, Object> getfilters(WebRequest webRequest) {
 		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
 			if(!sortingKeys(key)) {
@@ -48,7 +48,7 @@ public interface CQRSController<DT, EN, ID> {
 		return filters;
 	}
 	
-	default Map<String, Object> getSortings(WebRequest webRequest) {
+	static Map<String, Object> getSortings(WebRequest webRequest) {
 		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
 			if(sortingKeys(key)) {
@@ -67,13 +67,13 @@ public interface CQRSController<DT, EN, ID> {
 	}
 
 
-	default boolean sortingKeys(String key) {
+	static boolean sortingKeys(String key) {
 		return SORT_ORDER.equalsIgnoreCase(key) || ORDER_BY.equalsIgnoreCase(key) ||SORT.equalsIgnoreCase(key);
 	}
 	
 	@GetMapping("/{id}")
-	default Response find(@PathVariable ID id){
-		Response response=new Response();
+	default Response<Object> find(@PathVariable ID id){
+		Response<Object> response=new Response<Object>();
 		try {
 			response.setData(customizedResponse(getService().findById(id)));
 			response.setSuccess(SUCCESS);
