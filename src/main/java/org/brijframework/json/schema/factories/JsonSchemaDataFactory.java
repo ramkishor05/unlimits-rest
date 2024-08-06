@@ -1,10 +1,14 @@
 package org.brijframework.json.schema.factories;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.brijframework.util.accessor.PropertyAccessorUtil;
+import org.brijframework.util.reflect.ClassUtil;
+import org.brijframework.util.reflect.FieldUtil;
 import org.brijframework.util.reflect.InstanceUtil;
 import org.brijframework.util.support.ReflectionAccess;
 
@@ -62,9 +66,47 @@ public class JsonSchemaDataFactory {
 		}
 		Object instance = InstanceUtil.getInstance(segmentMetaData.getType());
 		segmentMetaData.getProperties().forEach((key, val)->{
+			Field field=FieldUtil.getField(instance.getClass(), key, ReflectionAccess.PRIVATE);
+			if(segmentMetaData.getType().equals("com.brijframework.content.global.entities.EOGlobalExampleLibarary")) {
+				System.out.println("com.brijframework.content.global.entities.EOGlobalExampleLibarary");
+			}
 			if(val instanceof JsonSchemaObject) {
 				JsonSchemaObject schemaObject= (JsonSchemaObject)val;
 				PropertyAccessorUtil.setProperty (instance, key,ReflectionAccess.PRIVATE, buildObject(schemaObject));
+			} else if (val instanceof List) {
+				Class<?> collectionParamType = ClassUtil.collectionParamType(field);
+				@SuppressWarnings("unchecked")
+				List<Object> list = (List<Object>) val;
+				List<Object> returnlist=new ArrayList<Object>();
+				for( Object valobject: list ) {
+					if(valobject instanceof Map) {
+						@SuppressWarnings("unchecked")
+						Map<String,Object> mapObject= (Map<String,Object>) valobject;
+						mapObject.entrySet().forEach(entryMap->{
+							if(entryMap.getValue() instanceof JsonSchemaObject) {
+								JsonSchemaObject schemaObject= (JsonSchemaObject)entryMap.getValue();
+								entryMap.setValue(buildObject(schemaObject));
+							}
+						});
+						if(!collectionParamType.isAssignableFrom(valobject.getClass())) {
+							Object collectionInstance = InstanceUtil.getInstance(collectionParamType);
+							PropertyAccessorUtil.setProperties(collectionInstance, mapObject,ReflectionAccess.PRIVATE);
+							returnlist.add(collectionInstance);
+						}else {
+							returnlist.add(mapObject);
+						}
+					} else if(valobject instanceof JsonSchemaObject) {
+						if(valobject instanceof JsonSchemaObject) {
+							JsonSchemaObject schemaObject= (JsonSchemaObject)valobject;
+							returnlist.add(buildObject(schemaObject));
+						} else {
+							returnlist.add(object);
+						}
+					} else {
+						returnlist.add(object);
+					}
+				}
+				PropertyAccessorUtil.setProperty (instance, key,ReflectionAccess.PRIVATE, returnlist);
 			} else {
 				PropertyAccessorUtil.setProperty (instance, key,ReflectionAccess.PRIVATE, val);
 			}

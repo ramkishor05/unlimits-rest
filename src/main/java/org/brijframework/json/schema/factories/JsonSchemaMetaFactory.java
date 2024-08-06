@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,6 +68,38 @@ public class JsonSchemaMetaFactory implements SingletonFactory{
 					JsonSchemaObject refInfo = this.getCache().get(refInfos[1].trim());
 					entry.setValue(refInfo);
 				}
+			}
+			if (value instanceof List) {
+				@SuppressWarnings("unchecked")
+				List<Object> list = (List<Object>) value;
+				List<Object> returnlist=new ArrayList<Object>();
+				for( Object object: list ) {
+					if(object instanceof Map) {
+						@SuppressWarnings("unchecked")
+						Map<String,Object> mapObject= (Map<String,Object>) object;
+						mapObject.entrySet().forEach(entryMap->{
+							String ref = entryMap.getValue().toString();
+							if (ref.startsWith(LK)) {
+								String[] refInfos = ref.split(LK);
+								JsonSchemaObject refInfo = this.getCache().get(refInfos[1].trim());
+								entryMap.setValue(refInfo);
+							}
+						});
+						returnlist.add(mapObject);
+					} else if(object instanceof String) {
+						String refObject= (String) object;
+						if (refObject.startsWith(LK)) {
+							String[] refInfos = refObject.split(LK);
+							JsonSchemaObject refInfo = this.getCache().get(refInfos[1].trim());
+							returnlist.add(refInfo);
+						} else {
+							returnlist.add(object);
+						}
+					} else {
+						returnlist.add(object);
+					}
+				}
+				entry.setValue(returnlist);
 			}
 		});
 		Map<String, Object> relationship = segmentMetaData.getRelationship();
