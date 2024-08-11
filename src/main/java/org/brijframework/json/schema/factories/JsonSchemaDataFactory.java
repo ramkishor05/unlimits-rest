@@ -67,9 +67,6 @@ public class JsonSchemaDataFactory {
 		Object instance = InstanceUtil.getInstance(segmentMetaData.getType());
 		segmentMetaData.getProperties().forEach((key, val)->{
 			Field field=FieldUtil.getField(instance.getClass(), key, ReflectionAccess.PRIVATE);
-			if(segmentMetaData.getType().equals("com.brijframework.content.global.entities.EOGlobalExampleLibarary")) {
-				System.out.println("com.brijframework.content.global.entities.EOGlobalExampleLibarary");
-			}
 			if(val instanceof JsonSchemaObject) {
 				JsonSchemaObject schemaObject= (JsonSchemaObject)val;
 				PropertyAccessorUtil.setProperty (instance, key,ReflectionAccess.PRIVATE, buildObject(schemaObject));

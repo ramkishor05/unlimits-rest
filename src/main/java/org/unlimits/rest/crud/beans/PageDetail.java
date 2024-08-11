@@ -2,7 +2,7 @@ package org.unlimits.rest.crud.beans;
 
 import java.util.List;
 
-public class PageDetail {
+public class PageDetail<T> {
 	
 	private long totalCount;
 	
@@ -10,7 +10,7 @@ public class PageDetail {
 	
 	private long totalPages;
 	
-	private List<?> elements;
+	private List<T> elements;
 
 	public long getTotalCount() {
 		return totalCount;
@@ -28,11 +28,11 @@ public class PageDetail {
 		this.pageCount = pageCount;
 	}
 
-	public List<?> getElements() {
+	public List<T> getElements() {
 		return elements;
 	}
 
-	public void setElements(List<?> elements) {
+	public void setElements(List<T> elements) {
 		this.elements = elements;
 	}
 

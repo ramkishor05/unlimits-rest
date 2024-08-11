@@ -211,13 +211,13 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		return getRepository().findAll(sort);
 	}
 
-	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count,
+	default PageDetail<DT> fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count,
 			Map<String, Object> filters) {
 		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
-		PageDetail responseDto = new PageDetail();
+		PageDetail<DT> responseDto = new PageDetail<DT>();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
 		responseDto.setTotalPages(page.getTotalPages());
@@ -250,7 +250,7 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		return getRepository().findAll(pageable);
 	}
 
-	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count,
+	default PageDetail<DT> fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count,
 			Map<String, Object> sortOrders, Map<String, Object> filters) {
 		List<org.springframework.data.domain.Sort.Order> buidOrders = buidOrders(sortOrders);
 		if (CollectionUtils.isEmpty(buidOrders)) {
@@ -260,13 +260,13 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		}
 	}
 
-	default PageDetail fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort,
+	default PageDetail<DT> fetchPageObject(Map<String, List<String>> headers, int pageNumber, int count, Sort sort,
 			Map<String, Object> filters) {
 		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
 		List<DT> reslist = postFetch(page.toList());
-		PageDetail responseDto = new PageDetail();
+		PageDetail<DT> responseDto = new PageDetail<DT>();
 		responseDto.setPageCount(page.getNumber());
 		responseDto.setTotalCount(page.getTotalElements());
 		responseDto.setTotalPages(page.getTotalPages());
@@ -279,7 +279,8 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
-		return postFetch(page.toList());
+		List<DT> dataList = postFetch(page.toList());
+		return dataList;
 	}
 
 	default List<DT> fetchPageList(Map<String, List<String>> headers, int pageNumber, int count,
@@ -297,7 +298,8 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		preFetch(headers, filters);
 		Pageable pageable = getPageRequest(pageNumber, count, sort);
 		Page<EN> page = repositoryFindAll(headers, pageable, filters);
-		return postFetch(page.toList());
+		List<DT> dataList = postFetch(page.toList());
+		return dataList;
 	}
 
 	/**

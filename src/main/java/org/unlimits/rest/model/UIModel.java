@@ -1,7 +1,14 @@
 package org.unlimits.rest.model;
 
-public class UIModel {
+import java.io.Serializable;
+
+public class UIModel implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Long id;
 
 	private Double orderSequence;
