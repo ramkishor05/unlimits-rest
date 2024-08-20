@@ -1,6 +1,6 @@
 package org.brijframework.json.schema.factories;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JsonSchemaObject {
@@ -36,7 +36,7 @@ public class JsonSchemaObject {
 
 	public Map<String, Object> getProperties() {
 		if(properties==null) {
-			properties=new HashMap<String, Object>();
+			properties=new LinkedHashMap<String, Object>();
 		}
 		return properties;
 	}
@@ -47,7 +47,7 @@ public class JsonSchemaObject {
 
 	public Map<String, Object> getRelationship() {
 		if(relationship==null) {
-			relationship=new HashMap<String, Object>();
+			relationship=new LinkedHashMap<String, Object>();
 		}
 		return relationship;
 	}
