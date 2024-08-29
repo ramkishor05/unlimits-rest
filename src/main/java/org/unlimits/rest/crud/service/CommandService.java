@@ -45,7 +45,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 			return null;
 		}
 		preUpdate(dtoObject, findObject, headers);
-		EN entityObject=updateProperties(dtoObject, findObject);
+		EN entityObject=updateProperties(getMapper().mapToDAO(dtoObject), findObject);
 		EN updateEntityObject = getRepository().save(findObject);
 		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
 		postUpdate(updateDtoObject, updateEntityObject, headers);
@@ -79,7 +79,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	}
 
 
-	default EN updateProperties(DT source, EN target) {
+	default EN updateProperties(EN source, EN target) {
 		if(CollectionUtils.isEmpty(ignoreProperties())) {
 			BeanUtils.copyProperties(source, target);
 		} else {
