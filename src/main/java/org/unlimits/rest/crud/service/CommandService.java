@@ -1,5 +1,6 @@
 package org.unlimits.rest.crud.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import org.brijframework.util.accessor.PropertyAccessorUtil;
 import org.brijframework.util.support.ReflectionAccess;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
+import org.unlimits.rest.crud.mapper.GenericMapper;
 
 public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	
@@ -45,9 +47,10 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 			return null;
 		}
 		preUpdate(dtoObject, findObject, headers);
-		EN entityObject=updateProperties(getMapper().mapToDAO(dtoObject), findObject);
-		EN updateEntityObject = getRepository().save(findObject);
-		DT updateDtoObject = getMapper().mapToDTO(updateEntityObject);
+		GenericMapper<EN, DT> mapper = getMapper();
+		EN entityObject=updateProperties(mapper.mapToDAO(dtoObject), findObject);
+		EN updateEntityObject = getRepository().save(entityObject);
+		DT updateDtoObject = mapper.mapToDTO(updateEntityObject);
 		postUpdate(updateDtoObject, updateEntityObject, headers);
 		merge(dtoObject,entityObject,updateDtoObject, updateEntityObject, headers);
 		return updateDtoObject;
@@ -75,7 +78,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 
 
 	default List<String> ignoreProperties() {
-		return Arrays.asList(getPrimaryKey());
+		return new ArrayList<String>(Arrays.asList(getPrimaryKey()));
 	}
 
 

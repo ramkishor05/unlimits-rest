@@ -67,11 +67,11 @@ public interface CQRSService<DT, EN, ID> {
 	}
     
     default EN find(ID id) {
-    	return getRepository().getReferenceById(id);
+    	return getRepository().findById(id).orElse(null);
     }
 	
 	default DT findById(ID uuid) {
-		EN findObject = getRepository().getReferenceById(uuid);
+		EN findObject = getRepository().findById(uuid).orElse(null);
 		DT dtoObject = getMapper().mapToDTO(findObject);
 		postFetch(findObject, dtoObject);
 		return dtoObject;
