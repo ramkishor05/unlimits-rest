@@ -21,6 +21,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		postAdd(dtoObject, addedEntityObject);
 		DT addedDtoObject = getMapper().mapToDTO(addedEntityObject);
 		merge(dtoObject,entityObject,addedDtoObject, addedEntityObject, headers);
+		postFetch(addedEntityObject, addedDtoObject);
 		return addedDtoObject;
 	}
 	
@@ -53,6 +54,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		DT updateDtoObject = mapper.mapToDTO(updateEntityObject);
 		postUpdate(updateDtoObject, updateEntityObject, headers);
 		merge(dtoObject,entityObject,updateDtoObject, updateEntityObject, headers);
+		postFetch(updateEntityObject, updateDtoObject);
 		return updateDtoObject;
 	}
 
