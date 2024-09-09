@@ -25,22 +25,6 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return addedDtoObject;
 	}
 	
-	default void preAdd(DT data, Map<String, List<String>> headers) {
-		
-	}
-
-	default void preAdd(DT data, EN entity, Map<String, List<String>> headers) {
-	}
-
-
-	default void postAdd(DT data, EN entity) {
-
-	}
-
-	default DT update(DT dtoObject, Map<String, List<String>> headers) {
-		return update(PropertyAccessorUtil.getProperty(dtoObject, getPrimaryKey(), ReflectionAccess.PRIVATE), dtoObject, headers);
-	}
-
 	default DT update(ID id, DT dtoObject, Map<String, List<String>> headers) {
 		preUpdate(dtoObject, headers);
 		EN findObject = find(id);
@@ -57,6 +41,24 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		postFetch(updateEntityObject, updateDtoObject);
 		return updateDtoObject;
 	}
+	
+	default void preAdd(DT data, Map<String, List<String>> headers) {
+		
+	}
+
+	default void preAdd(DT data, EN entity, Map<String, List<String>> headers) {
+	}
+
+
+	default void postAdd(DT data, EN entity) {
+
+	}
+
+	default DT update(DT dtoObject, Map<String, List<String>> headers) {
+		return update(PropertyAccessorUtil.getProperty(dtoObject, getPrimaryKey(), ReflectionAccess.PRIVATE), dtoObject, headers);
+	}
+
+	
 
 	default void preUpdate(DT data, Map<String, List<String>> headers) {
 
