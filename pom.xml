@@ -21,9 +21,9 @@
 	</properties>
 	<dependencies>
 		<dependency>
-		    <groupId>io.github.brijframework</groupId>
-		    <artifactId>brijframework-util</artifactId>
-		    <version>1.0.1</version>
+			<groupId>io.github.brijframework</groupId>
+			<artifactId>brijframework-util</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -40,7 +40,7 @@
 			<artifactId>mapstruct</artifactId>
 			<version>${org.mapstruct.version}</version>
 		</dependency>
-		
+
 		<!-- JWT Library -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -60,6 +60,23 @@
 			<version>0.11.5</version>
 		</dependency>
 		<!-- JWT Library -->
-
+		<dependency>
+			<groupId>org.jcodec</groupId>
+			<artifactId>jcodec</artifactId>
+			<version>0.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jcodec</groupId>
+			<artifactId>jcodec-javase</artifactId>
+			<version>0.2.3</version>
+		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>dcm4che</id>
+			<name>dcm4che</name>
+			<url>https://www.dcm4che.org/maven2/</url>
+		</repository>
+	</repositories>
 </project>
