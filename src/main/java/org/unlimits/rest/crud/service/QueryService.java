@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.brijframework.util.text.StringUtil;
 import org.springframework.data.domain.Page;
@@ -93,7 +92,7 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		Object sort = sortOrders.get(SORT);
 		Object orderBy = sortOrders.get(ORDER_BY);
 		Object sortOrder = sortOrders.get(SORT_ORDER);
-		if (Objects.nonNull(sort)) {
+		if (StringUtil.hasText(sort)) {
 			if(sort instanceof List<?>) {
 				@SuppressWarnings("unchecked")
 				List<Object> sortList= (List<Object>) sort;
@@ -109,7 +108,7 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 					orders.add(order);
 				}
 			}
-		} else if (Objects.nonNull(orderBy)) {
+		} else if (StringUtil.hasText(orderBy)) {
 			Order order= getOrder(sortOrder, orderBy);
 			if(order!=null) {
 				orders.add(order);
@@ -122,7 +121,7 @@ public interface QueryService<DT, EN, ID> extends CQRSService<DT, EN, ID> {
 		String findSortingKey = findSortingKey(orderBy.toString());
 		Order order=  null;
 		if(StringUtil.isNonEmpty(findSortingKey)) {
-			return Objects.isNull(sortOrder) ? 
+			return StringUtil.hasText(sortOrder) ? 
 				new Order(Direction.ASC, findSortingKey): 
 				new Order(Direction.fromString(sortOrder.toString().toUpperCase()), findSortingKey);
 		}
