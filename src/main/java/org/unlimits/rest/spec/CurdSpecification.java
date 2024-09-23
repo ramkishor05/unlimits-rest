@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
-import org.unlimits.rest.crud.service.QueryService;
+import org.unlimits.rest.crud.service.CQRSService;
 import org.unlimits.rest.filters.FilterPredicate;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -22,13 +22,13 @@ public class CurdSpecification<DT, EN, ID> implements Specification<EN>{
 	
 	private Type type;
 	
-	private QueryService<DT, EN, ID> queryService;
+	private CQRSService<DT, EN, ID> cqrsService;
 	
 	/**
 	 * 
 	 */
-	public CurdSpecification(QueryService<DT, EN, ID> crudService,Type type, List<FilterPredicate> filterList) {
-		this.queryService=crudService;
+	public CurdSpecification(CQRSService<DT, EN, ID> cqrsService,Type type, List<FilterPredicate> filterList) {
+		this.cqrsService=cqrsService;
 		this.type=type;
 		this.filterList=filterList;
 	}
@@ -37,7 +37,7 @@ public class CurdSpecification<DT, EN, ID> implements Specification<EN>{
 	public Predicate toPredicate(Root<EN> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 		List<Predicate> predicates = new ArrayList<>();
 		filterList.forEach(filter -> {
-			Predicate predicate = queryService.build(type(), root, query, criteriaBuilder, filter);
+			Predicate predicate = cqrsService.build(type(), root, query, criteriaBuilder, filter);
 			if(predicate!=null) {
 				predicates.add(predicate);
 			}

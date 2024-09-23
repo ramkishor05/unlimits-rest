@@ -1,6 +1,6 @@
 package org.unlimits.rest.crud.controller;
 
-import static org.unlimits.rest.constants.RestConstant.ORDER_BY;
+import static org.unlimits.rest.constants.RestConstant.*;
 import static org.unlimits.rest.constants.RestConstant.SORT;
 import static org.unlimits.rest.constants.RestConstant.SORT_ORDER;
 
@@ -40,7 +40,7 @@ public interface CQRSController<DT, EN, ID> {
 	static Map<String, Object> getfilters(WebRequest webRequest) {
 		Map<String, Object> filters=new HashMap<String, Object>();
 		webRequest.getParameterMap().forEach((key,values)->{
-			if(!sortingKeys(key)) {
+			if(!(sortingKeys(key) || actionKeys(key))) {
 				if(values!=null ) {
 					if(values.length==1) {
 						filters.put(key, values[0]);
@@ -72,7 +72,28 @@ public interface CQRSController<DT, EN, ID> {
 		});
 		return filters;
 	}
+	
+	static Map<String, Object> getActions(WebRequest webRequest) {
+		Map<String, Object> filters=new HashMap<String, Object>();
+		webRequest.getParameterMap().forEach((key,values)->{
+			if(actionKeys(key)) {
+				if(values!=null ) {
+					if(values.length==1) {
+						filters.put(key, values[0]);
+					} else {
+						filters.put(key, Arrays.asList(values));
+					}
+				}else {
+					filters.put(key, values);
+				}
+			}
+		});
+		return filters;
+	}
 
+	static boolean actionKeys(String key) {
+		return INCLUDE_KEYS.equalsIgnoreCase(key) || EXCLUDE_KEYS.equalsIgnoreCase(key);
+	}
 
 	static boolean sortingKeys(String key) {
 		return SORT_ORDER.equalsIgnoreCase(key) || ORDER_BY.equalsIgnoreCase(key) ||SORT.equalsIgnoreCase(key);
@@ -82,11 +103,12 @@ public interface CQRSController<DT, EN, ID> {
 	default Response<Object> find(@PathVariable ID id, @RequestHeader(required =false)  MultiValueMap<String,String> headers , WebRequest webRequest){
 		Response<Object> response=new Response<Object>();
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, FIND, "/{id}");
 		try {
-			response.setData(customizedResponse(getService().findById(id), queryRequest));
+			response.setData(customizedResponse(getService().findById(id, headers, filters, actions), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;

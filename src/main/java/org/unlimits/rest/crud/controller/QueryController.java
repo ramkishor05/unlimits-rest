@@ -31,15 +31,19 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	public abstract QueryService<DT, EN, ID> getService();
 	
 	@GetMapping("/findAllById/{ids}")
-	default Response<Object> findAllById(@RequestHeader(required =false)  MultiValueMap<String,String> headers ,@PathVariable List<ID> ids, WebRequest webRequest){
+	default Response<Object> findAllById(
+			@RequestHeader(required =false)  Map<String, List<String>> headers ,
+			@PathVariable List<ID> ids,
+			WebRequest webRequest){
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		params.put(PARAM_IDS, ids);
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, FIND_ALL_BY_ID, "/findAllById/{ids}");
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().findAllById(ids, headers, sortOrders, filters), queryRequest));
+			response.setData(customizedResponse(getService().findAllById(ids, headers, filters, actions, sortOrders), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -60,13 +64,13 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			WebRequest webRequest){
 		
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
-		
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, FIND_ALL, "/");
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().findAll(headers, sortOrders, filters),queryRequest));
+			response.setData(customizedResponse(getService().findAll(headers, filters, actions, sortOrders),queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -85,6 +89,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			@PathVariable int count, 
 			WebRequest webRequest){
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Response<Object> response=new Response<Object>();
 		Map<String, Object> params=new HashMap<String, Object>();
@@ -92,7 +97,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 		params.put(PARAM_PAGE_COUNT, count);
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, PAGE_DATA, "/page/data/{pageNumber}/count/{count}");
 		try {
-			response.setData(customizedResponse(getService().fetchPageObject(headers, pageNumber, count, sortOrders, filters), queryRequest));
+			response.setData(customizedResponse(getService().fetchPageObject(pageNumber, count, headers, filters, actions, sortOrders), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -114,7 +119,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 			@PathVariable int pageNumber,@PathVariable int count,
 			WebRequest webRequest){
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
-		
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		params.put(PARAM_PAGE_NUMBER, pageNumber);
@@ -122,7 +127,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, PAGE_LIST, "/page/list/{pageNumber}/count/{count}");
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().fetchPageList(headers, pageNumber, count, sortOrders, filters), queryRequest));
+			response.setData(customizedResponse(getService().fetchPageList(pageNumber, count, headers, filters, actions, sortOrders), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;

@@ -4,11 +4,11 @@ import java.util.List;
 
 public interface GenericMapper<E, D> {
 
-	D mapToDTO(E e);
+	D mapToDTO(E entityObject);
 
-	E mapToDAO(D d);
+	E mapToDAO(D dtoObject);
 	
-	List<E> mapToDAO(List<D> ds);
+	List<E> mapToDAO(List<D> dtoObjectList);
 	
-	List<D> mapToDTO(List<E> es);
+	List<D> mapToDTO(List<E> entityObjectList);
 }

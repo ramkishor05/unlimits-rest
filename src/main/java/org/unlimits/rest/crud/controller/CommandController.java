@@ -39,6 +39,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	@PostMapping("#{T(org.unlimits.rest.crud.controller.CommandController).findEndpoint('add')}")
 	default Response<Object> add(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers, WebRequest webRequest){
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		params.put("data", dto);
@@ -46,7 +47,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 		
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().add(dto,headers), queryRequest));
+			response.setData(customizedResponse(getService().add(dto,headers, filters, actions), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -62,13 +63,14 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	@PutMapping("#{T(org.unlimits.rest.crud.controller.CommandController).findEndpoint('update')}")
 	default Response<Object> update(@RequestBody DT dto, @RequestHeader MultiValueMap<String,String> headers, WebRequest webRequest){
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		params.put("data", dto);
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, "update", "/");
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().update(dto,headers), queryRequest));
+			response.setData(customizedResponse(getService().update(dto,headers, filters, actions), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -83,6 +85,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 	@PutMapping("/{id}")
 	default Response<Object> update(@PathVariable ID id,@RequestBody DT dto, @RequestHeader(required =false)  MultiValueMap<String,String> headers, WebRequest webRequest){
 		Map<String, Object> filters = CQRSController.getfilters(webRequest);
+		Map<String, Object> actions = CQRSController.getActions(webRequest);
 		Map<String, Object> sortOrders = CQRSController.getSortings(webRequest);
 		Map<String, Object> params=new HashMap<String, Object>();
 		params.put("data", dto);
@@ -90,7 +93,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, "update", "/{id}");
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().update(id, dto,headers), queryRequest));
+			response.setData(customizedResponse(getService().update(id, dto,headers, filters, actions), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;
@@ -111,7 +114,7 @@ public interface CommandController<DT, EN, ID> extends CQRSController<DT, EN, ID
 		QueryRequest queryRequest=new QueryRequest(params, headers, sortOrders, filters, "delete", "/{id}");
 		Response<Object> response=new Response<Object>();
 		try {
-			response.setData(customizedResponse(getService().delete(id), queryRequest));
+			response.setData(customizedResponse(getService().deleteById(id), queryRequest));
 			response.setSuccess(SUCCESS);
 			response.setMessage(SUCCESSFULLY_PROCCEED);
 			return response;

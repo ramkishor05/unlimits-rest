@@ -28,6 +28,9 @@ public class FilterPredicate {
 	}
 
 	public Object getColumnValue() {
+		if(columnValue==null) {
+			columnValue="";
+		}
 		return columnValue;
 	}
 
