@@ -25,6 +25,9 @@ public interface CQRSController<DT, EN, ID> {
 	 * 
 	 */
 	public static final String SUCCESSFULLY_PROCCEED = "Successfully procceed";
+	
+	public static final String FAILED_PROCCEED = "Fail procceed";
+	
 	/**
 	 * 
 	 */

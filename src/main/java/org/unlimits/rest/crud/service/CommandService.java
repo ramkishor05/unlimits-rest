@@ -1,7 +1,6 @@
 package org.unlimits.rest.crud.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -263,6 +262,62 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 		return list;
 	}
 	
+	default List<DT> updateAll(List<DT> dtoObjectList, Map<String, List<String>> headers, Map<String, Object> filters){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject, headers, filters));
+		}
+		return list;
+	}
+	
+	default List<DT> updateAll(List<DT> dtoObjectList, Map<String, List<String>> headers){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject, headers));
+		}
+		return list;
+	}
+	
+	default List<DT> updateAll(List<DT> dtoObjectList){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject));
+		}
+		return list;
+	}
+	
+	default List<DT> saveAll(List<DT> dtoObjectList, Map<String, List<String>> headers, Map<String, Object> filters, Map<String, Object> actions){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject, headers, filters, actions));
+		}
+		return list;
+	}
+	
+	default List<DT> saveAll(List<DT> dtoObjectList, Map<String, List<String>> headers, Map<String, Object> filters){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject, headers, filters));
+		}
+		return list;
+	}
+	
+	default List<DT> saveAll(List<DT> dtoObjectList, Map<String, List<String>> headers){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject, headers));
+		}
+		return list;
+	}
+	
+	default List<DT> saveAll(List<DT> dtoObjectList){
+		List<DT> list=new ArrayList<DT>();
+		for(DT dtoObject : dtoObjectList) {
+			list.add(update(dtoObject));
+		}
+		return list;
+	}
+	
 	default void postUpdate(DT data, EN entity, Map<String, List<String>> headers, Map<String, Object> filters, Map<String, Object> actions) {
 		postUpdate(data, entity, headers, filters);
 	}
@@ -313,10 +368,7 @@ public interface CommandService<DT, EN, ID>  extends CQRSService<DT, EN, ID>{
 	default void merge(DT dtoObject, EN entityObject, DT updateDtoObject, EN updateEntityObject) {
 	}
 
-	default List<String> ignoreProperties() {
-		return new ArrayList<String>(Arrays.asList(getPrimaryKey()));
-	}
-
+    List<String> ignoreProperties();
 
 	default EN updateProperties(EN source, EN target) {
 		if(CollectionUtils.isEmpty(ignoreProperties())) {

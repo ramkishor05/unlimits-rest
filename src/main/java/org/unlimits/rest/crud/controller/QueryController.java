@@ -27,6 +27,7 @@ public interface QueryController<DT, EN, ID>  extends CQRSController<DT, EN, ID>
 	public static final String PAGE_DATA = "PAGE_DATA";
 	public static final String FIND_ALL = "FIND_ALL";
 	public static final String FIND_ALL_BY_ID = "FIND_ALL_BY_ID";
+	
 
 	public abstract QueryService<DT, EN, ID> getService();
 	
